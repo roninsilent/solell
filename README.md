@@ -30,3 +30,15 @@ un fitxer `solell-factures.json`. L'app només el llegeix.
 | Aigua | consum i import de cada trimestre |
 | Telèfon | l'import de cada mes |
 | Totes | la llista sencera, amb cercador i enllaç al PDF |
+
+## Resum del matí
+
+`mati.html` ensenya el resum que es genera cada matí a les 6:54: el temps dels
+tres llocs, l'agenda, qui treballa i els missatges que demanen resposta. Llegeix
+`solell-resum-mati.json` del mateix Drive i en guarda els últims catorze dies.
+
+El resum el redacta en Gemini i arriba com una pàgina sencera d'HTML. L'app no
+l'enganxa tal qual: n'extreu el bloc `.shell`, el torna a muntar etiqueta per
+etiqueta amb una llista del que hi pot haver i descarta la resta, de manera que
+ni un `<script>` ni un `onclick` ni un enllaç que no sigui `https:` o `mailto:`
+hi poden entrar.
