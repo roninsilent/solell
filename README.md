@@ -43,8 +43,7 @@ un fitxer `solell-factures.json`. L'app només el llegeix.
 
 ## Resum del matí
 
-`mati.html` manté el vestit que el resum ja tenia —fons fosc, Fraunces als
-titulars, el taronja fang i el blau— i el menú va a joc. Ensenya el resum que es genera cada matí a les 6:54: el temps dels
+`mati.html` ensenya el resum que es genera cada matí a les 6:54: el temps dels
 tres llocs, l'agenda, qui treballa i els missatges que demanen resposta. Llegeix
 `solell-resum-mati.json` del mateix Drive i en guarda els últims catorze dies.
 
@@ -53,3 +52,15 @@ l'enganxa tal qual: n'extreu el bloc `.shell`, el torna a muntar etiqueta per
 etiqueta amb una llista del que hi pot haver i descarta la resta, de manera que
 ni un `<script>` ni un `onclick` ni un enllaç que no sigui `https:` o `mailto:`
 hi poden entrar.
+
+## El vestit
+
+Les tres pàgines comparteixen el disseny que el resum matutí ja tenia: fons
+#15171B, Fraunces als titulars i a les xifres, el taronja fang per als accents
+i el blau per al que és secundari. La lletra de pal és la del sistema i la
+Fraunces és al repositori, de manera que cap pàgina no depèn de Google Fonts
+ni de cap altre lloc.
+
+Als gràfics de les factures, la llum és el fang i l'aigua el blau; el telèfon
+va a una pruna més fosca i els excedents a un verd més clar, perquè les quatre
+sèries es distingeixin també per la claror i no només pel to.
