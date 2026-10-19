@@ -5,16 +5,26 @@ paga cada mes i com canvia d'un any a l'altre.
 
 **https://roninsilent.github.io/solell/**
 
-## Com funciona
+## Les pàgines
 
-`index.html` és tota l'app: un sol fitxer, sense cap pas de compilació ni cap
-dependència més enllà de la lletra de Google Fonts i l'entrada amb Google.
+| | |
+|---|---|
+| `index.html` | el menú: troba sol les pàgines noves del repositori |
+| `mati.html` | el resum de cada matí |
+| `factures.html` | les factures de casa |
+
+Cada app és un sol fitxer, sense cap pas de compilació. El menú no demana
+entrar-hi; les altres dues sí.
+
+## Com funciona
 
 Les dades no es toquen des d'aquí. Cada dilluns al matí una tasca automàtica
 mira els correus de les companyies, desa els PDF al Drive de casa i hi deixa
 un fitxer `solell-factures.json`. L'app només el llegeix.
 
 - Entra-hi amb **roninsilent@gmail.com**; qualsevol altre compte el rebutja.
+- El menú mira quins `.html` hi ha al repositori i en llegeix el títol i la
+  descripció: una pàgina nova hi surt sola, sense tocar el menú.
 - El permís que demana és `drive.file`: només veu els fitxers que ha creat
   ella mateixa. Per això, la primera vegada que s'hi entra crea el
   `solell-factures.json` buit, i a partir d'aquell moment la tasca setmanal ja
@@ -33,7 +43,8 @@ un fitxer `solell-factures.json`. L'app només el llegeix.
 
 ## Resum del matí
 
-`mati.html` ensenya el resum que es genera cada matí a les 6:54: el temps dels
+`mati.html` manté el vestit que el resum ja tenia —fons fosc, Fraunces als
+titulars, el taronja fang i el blau— i el menú va a joc. Ensenya el resum que es genera cada matí a les 6:54: el temps dels
 tres llocs, l'agenda, qui treballa i els missatges que demanen resposta. Llegeix
 `solell-resum-mati.json` del mateix Drive i en guarda els últims catorze dies.
 
