@@ -39,7 +39,18 @@ un fitxer `solell-factures.json`. L'app només el llegeix.
 | Llum | kWh comprats i abocats a la xarxa, i l'import de cada mes |
 | Aigua | consum i import de cada trimestre |
 | Telèfon | l'import de cada mes |
+| Altres despeses | assegurances, manteniments i impostos: què costen, quan es cobren i a qui trucar |
 | Totes | la llista sencera, amb cercador i enllaç al PDF |
+
+## Altres despeses
+
+Les assegurances, el manteniment de l'aerotermia i els impostos de la casa són
+a la clau `despeses` del mateix JSON. La tasca setmanal no les toca: s'omplen a
+mà, a `zenkai3d-factures.json` (el fitxer mestre), i el dilluns passen soles a
+`solell-factures.json`. Cada una porta el cost i la periodicitat, la data de
+cobrament (l'app calcula la propera), els telèfons de qui cal trucar, que a
+l'iPhone es truquen tocant-los, i d'on surten les dades. Les que no tenen
+import surten marcades i no compten a la suma.
 
 ## Resum del matí
 

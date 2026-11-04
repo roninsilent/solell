@@ -193,6 +193,46 @@ ul.mini li{margin:6px 0;line-height:1.45}
 .gate-link{margin-top:16px;font-size:12.5px;color:var(--ink-soft);text-decoration:underline;background:none;border:0;cursor:pointer;padding:4px}
 .gate-status{margin-top:12px;font-size:12.5px;color:var(--ink-soft)}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:40;background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-size:13.5px;font-weight:600}
+/* ---------- altres despeses: assegurances, manteniments i impostos ---------- */
+.dcard{padding:16px 18px}
+.dtop{display:flex;gap:14px;align-items:flex-start;justify-content:space-between}
+.dtop h3{font-family:var(--display);font-size:16px;font-weight:600;margin:0;line-height:1.3}
+.dtop .co{display:block;font-size:13px;color:var(--ink-soft);margin-top:2px}
+.dtop .badge{margin:6px 0 0}
+.badge.avis{color:var(--coure-clar);border-color:var(--coure)}
+.dval{text-align:right;flex:none;max-width:45%}
+.dval b{display:block;font-family:var(--display);font-size:21px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dval b.falta{font-family:var(--sans);font-size:13px;font-weight:700;color:var(--coure-clar);white-space:normal}
+.dval small{display:block;font-size:12px;color:var(--ink-soft);line-height:1.35}
+.dmeta{display:flex;flex-wrap:wrap;gap:3px 16px;margin:10px 0 0;font-size:12.5px;color:var(--ink-soft)}
+.dmeta b{color:var(--ink);font-weight:600}
+.ddet{margin:8px 0 0;font-size:13.5px;line-height:1.5}
+.dnota{margin:8px 0 0;font-size:12.5px;color:var(--ink-soft);line-height:1.45}
+.contactes{display:grid;gap:8px;margin-top:12px}
+.tel{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:12px;text-decoration:none;background:var(--hub);
+  border:1px solid var(--line-strong);border-radius:10px;padding:9px 12px;min-height:50px}
+.tel:hover{border-color:var(--coure-clar)}
+.tel .ico{width:30px;height:30px;border-radius:50%;background:var(--coure);display:grid;place-items:center}
+.tel .ico svg{width:15px;height:15px;display:block}
+.tel .qui{display:block;font-weight:700;font-size:14px;line-height:1.3}
+.tel .per{display:block;font-size:12px;color:var(--ink-soft);line-height:1.35}
+.tel .num{font-family:var(--display);font-weight:600;font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--coure-clar)}
+.mail{font-size:12.5px;color:var(--blau-clar);text-decoration:none;word-break:break-all;font-weight:600}
+.mail:hover{text-decoration:underline}
+.docs{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font-size:12.5px}
+.docs a{color:var(--blau-clar);font-weight:600;text-decoration:none}
+.docs a:hover{text-decoration:underline}
+.proper{display:flex;align-items:center;gap:12px;padding:10px 2px;border-top:1px solid var(--line)}
+.proper:last-child{border-bottom:1px solid var(--line)}
+.proper .dia{flex:none;width:48px;text-align:center;line-height:1.1}
+.proper .dia b{display:block;font-family:var(--display);font-size:20px;font-weight:600}
+.proper .dia small{display:block;font-size:11.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em}
+.proper .q{flex:1;min-width:0}
+.proper .q b{display:block;font-size:14px;font-weight:600}
+.proper .q small{display:block;font-size:12px;color:var(--ink-soft)}
+.proper .v{flex:none;text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.proper .v small{display:block;font-size:12px;color:var(--ink-soft);font-weight:400}
+@media(max-width:560px){.tel .num{font-size:14px} .dval b{font-size:19px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
 /* ---------- ios-zoom: que l'iPhone no ampliï la pàgina ----------
@@ -250,6 +290,7 @@ ul.mini li{margin:6px 0;line-height:1.45}
   <button role="tab" data-view="llum" aria-selected="false">Llum</button>
   <button role="tab" data-view="aigua" aria-selected="false">Aigua</button>
   <button role="tab" data-view="telefon" aria-selected="false">Telèfon</button>
+  <button role="tab" data-view="altres" aria-selected="false">Altres despeses</button>
   <button role="tab" data-view="totes" aria-selected="false">Totes</button>
 </nav>
 
@@ -322,6 +363,21 @@ ul.mini li{margin:6px 0;line-height:1.45}
   <h2>Factures</h2>
   <div class="tbl-wrap"><table class="bd" id="telefon-taula"></table></div>
   <p class="hint" id="telefon-nota"></p>
+</section>
+
+<section id="view-altres" hidden>
+  <div class="statrow tres" id="altres-kpis"></div>
+  <p class="hint" id="altres-kpi-note"></p>
+  <div class="empty-state" id="altres-buit" hidden>
+    <b>Encara no hi ha cap despesa fixa</b>
+    <span>Les assegurances, els manteniments i els impostos de la casa sortiran aquí quan s'afegeixin a les dades.</span>
+  </div>
+  <div id="altres-propers-box" hidden>
+    <h2>Propers cobraments</h2>
+    <p class="hint">Els dels pròxims dotze mesos, segons la data de renovació de cada una.</p>
+    <div id="altres-propers"></div>
+  </div>
+  <div id="altres-grups"></div>
 </section>
 
 <section id="view-totes" hidden>
@@ -445,7 +501,7 @@ function carrega(data) {
 }
 
 /* ---------- pestanyes ---------- */
-var VISTES = ["resum", "llum", "aigua", "telefon", "totes"];
+var VISTES = ["resum", "llum", "aigua", "telefon", "altres", "totes"];
 var VISTA = lsGet(TAB_KEY) || "resum";
 if (VISTES.indexOf(VISTA) < 0) VISTA = "resum";
 function mostra(v) {
@@ -471,6 +527,7 @@ function pinta() {
   pintaLlum();
   pintaSimple("aigua");
   pintaSimple("telefon");
+  pintaAltres();
   pintaFiltre();
   pintaTotes();
   pintaPeu();
@@ -510,6 +567,16 @@ function pintaResum() {
   }
   if (L && L.exc12 > 0) {
     R.appendChild(afegeix(el("p"), ["Les plaques han abocat ", B(n0(L.exc12) + " kWh"), " a la xarxa en 12 mesos, que t'han descomptat ", B(eur0(L.exe12)), " de la llum."]));
+  }
+  var X = despeses();
+  if (X.length) {
+    var amb = X.filter(function (x) { return anual(x) !== null; }), sense = X.filter(function (x) { return anual(x) === null; });
+    var dit = function (x) { return x.dit || x.nom.charAt(0).toLowerCase() + x.nom.slice(1); };
+    var pf = el("p");
+    if (amb.length) afegeix(pf, ["A part de les factures, " + llistaCat(amb.map(dit)) + (amb.length === 1 ? " costa " : " sumen "),
+      B(eur0(amb.reduce(function (a, x) { return a + anual(x); }, 0)) + " l'any"), "."]);
+    if (sense.length) afegeix(pf, [(amb.length ? " " : "") + cap(llistaCat(sense.map(dit))) + (sense.length === 1 ? " encara no té" : " encara no tenen") + " import (són a «Altres despeses»)."]);
+    R.appendChild(pf);
   }
 
   var K = $("kpis"); K.replaceChildren();
@@ -848,6 +915,151 @@ function pintaTotes() {
   rr.forEach(function (r) { Ls.appendChild(filaFactura(r, { t: provDe(r.tipus), sub: r.num || "sense número" })); });
   $("totes-hint").textContent = rr.length ? rr.length + (rr.length === 1 ? " factura" : " factures") + " · " + eur(suma(rr, "total")) + " en total" +
     (rr.some(function (r) { return !efectiva(r); }) ? " (l'anul·lada i el seu abonament es compensen)" : "") + "." : "Cap factura no coincideix amb la cerca.";
+}
+
+/* ---------- altres despeses: assegurances, manteniments i impostos ----------
+   Viuen a D.despeses, una llista que s'omple a mà (la tasca setmanal no la toca).
+   Cada una: nom, dit (com es diu dins d'una frase), grup, companyia, producte, ref,
+   import, periodicitat, cobrament (l'últim o el proper, AAAA-MM-DD), estat, detall,
+   nota, font, contactes [{qui, per, tel, email, nota}] i docs [{nom, url}]. */
+var GRUPS = [{ k: "assegurances", nom: "Assegurances" }, { k: "casa", nom: "Casa" }];
+var PER_ANY = { anual: 1, semestral: 2, trimestral: 4, mensual: 12 };
+var MESOS_PERIODE = { anual: 12, semestral: 6, trimestral: 3, mensual: 1 };
+var PERIODE_TXT = { anual: "l'any", semestral: "cada sis mesos", trimestral: "cada trimestre", mensual: "al mes" };
+var ICO_TEL = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>';
+var ICO_MAIL = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>';
+function despeses() { return (D && Array.isArray(D.despeses) ? D.despeses : []).filter(function (x) { return x && x.nom; }); }
+function anual(x) { return ok(x.import) && PER_ANY[x.periodicitat] ? x.import * PER_ANY[x.periodicitat] : null; }
+function sumaMesos(s, n) {
+  var d = pd(s), dia = d.getUTCDate();
+  d.setUTCDate(1); d.setUTCMonth(d.getUTCMonth() + n);
+  var ult = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate();
+  d.setUTCDate(Math.min(dia, ult));
+  return d.toISOString().slice(0, 10);
+}
+function properCobrament(x) {
+  if (typeof x.cobrament !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(x.cobrament)) return null;
+  var m = MESOS_PERIODE[x.periodicitat], d = x.cobrament, avui = avuiISO(), n = 0;
+  if (!m) return d >= avui ? d : null;
+  while (d < avui && n++ < 600) d = sumaMesos(d, m);
+  return d;
+}
+function quanFalta(s) { var n = diesEntre(avuiISO(), s); return n <= 0 ? "avui" : n === 1 ? "demà" : "d'aquí a " + n + " dies"; }
+function telNet(t) { var d = String(t || "").replace(/\D/g, ""); if (d.length === 11 && d.indexOf("34") === 0) d = d.slice(2); return /^[6789]\d{8}$/.test(d) ? d : null; }
+function telBonic(d) { return /^[67]/.test(d) ? d.replace(/(\d{3})(\d{3})(\d{3})/, "$1 $2 $3") : d.replace(/(\d{3})(\d{2})(\d{2})(\d{2})/, "$1 $2 $3 $4"); }
+function correuNet(e) { return typeof e === "string" && /^[^\s@<>"'()]+@[^\s@<>"'()]+\.[a-z]{2,}$/i.test(e) ? e : null; }
+
+function botoContacte(k) {
+  var n = telNet(k.tel), m = correuNet(k.email);
+  if (!n && !m) return null;
+  var a = el("a", "tel");
+  a.href = n ? "tel:+34" + n : "mailto:" + m;
+  a.setAttribute("aria-label", (n ? "Truca a " : "Escriu a ") + (k.qui || "") + (n ? ", " + telBonic(n) : ""));
+  var ic = el("span", "ico"); ic.innerHTML = n ? ICO_TEL : ICO_MAIL; a.appendChild(ic);
+  var t = el("span");
+  t.appendChild(el("span", "qui", k.qui || ""));
+  var per = [k.per, k.nota].filter(Boolean).join(" · ");
+  if (per) t.appendChild(el("span", "per", per));
+  a.appendChild(t);
+  a.appendChild(el("span", "num", n ? telBonic(n) : "Correu"));
+  var box = el("div");
+  box.appendChild(a);
+  if (n && m) {
+    var e = el("a", "mail", m); e.href = "mailto:" + m;
+    e.style.display = "block"; e.style.margin = "4px 0 0 54px";
+    box.appendChild(e);
+  }
+  return box;
+}
+
+function targetaDespesa(x) {
+  var c = el("div", "card dcard");
+  var top = el("div", "dtop"), t = el("div");
+  t.appendChild(el("h3", "", x.nom));
+  var co = [x.companyia, x.producte].filter(Boolean).join(" · ");
+  if (co) t.appendChild(el("span", "co", co));
+  if (x.estat && ok(x.import)) t.appendChild(el("span", "badge avis", cap(x.estat)));   /* sense import, ja ho diu la xifra */
+  top.appendChild(t);
+  var v = el("div", "dval");
+  if (ok(x.import)) {
+    v.appendChild(el("b", "", eur(x.import)));
+    var a = anual(x), txt = PERIODE_TXT[x.periodicitat] || "";
+    if (a !== null && x.periodicitat !== "mensual") txt += " · ≈ " + eur0(a / 12) + " al mes";
+    if (txt) v.appendChild(el("small", "", txt));
+  } else v.appendChild(el("b", "falta", "Falta l'import"));
+  top.appendChild(v);
+  c.appendChild(top);
+
+  var meta = el("div", "dmeta"), pc = properCobrament(x);
+  if (x.ref) meta.appendChild(el("span", "", x.ref));
+  if (pc) afegeix(meta.appendChild(el("span")), ["Proper cobrament: ", B(fData(pc)), " (" + quanFalta(pc) + ")"]);
+  if (meta.childNodes.length) c.appendChild(meta);
+  if (x.detall) c.appendChild(el("p", "ddet", x.detall));
+
+  var ks = (x.contactes || []).map(botoContacte).filter(Boolean);
+  if (ks.length) {
+    var cs = el("div", "contactes");
+    ks.forEach(function (k) { cs.appendChild(k); });
+    c.appendChild(cs);
+  }
+  if (x.nota) c.appendChild(el("p", "dnota", x.nota));
+  var docs = (x.docs || []).filter(function (d) { return d && enllacPdf(d.url); });
+  if (docs.length || x.font) {
+    var dd = el("div", "docs");
+    docs.forEach(function (d) { var l = el("a", "", (d.nom || "Document") + " ↗"); l.href = d.url; l.target = "_blank"; l.rel = "noopener"; dd.appendChild(l); });
+    if (x.font) dd.appendChild(el("span", "muted", "D'on surt: " + x.font));
+    c.appendChild(dd);
+  }
+  return c;
+}
+
+function pintaAltres() {
+  var X = despeses();
+  var K = $("altres-kpis"), P = $("altres-propers"), G = $("altres-grups");
+  K.replaceChildren(); P.replaceChildren(); G.replaceChildren();
+  $("altres-buit").hidden = !!X.length;
+  $("altres-kpi-note").textContent = "";
+  if (!X.length) { $("altres-propers-box").hidden = true; return; }
+
+  var amb = X.filter(function (x) { return anual(x) !== null; }), sense = X.filter(function (x) { return anual(x) === null; });
+  var tot = amb.reduce(function (a, x) { return a + anual(x); }, 0);
+  var avui = avuiISO(), limit = addDays(avui, 366);
+  var pr = X.map(function (x) { return { x: x, d: properCobrament(x) }; })
+    .filter(function (p) { return p.d && p.d <= limit; })
+    .sort(function (a, b) { return a.d.localeCompare(b.d); });
+
+  K.appendChild(stat("Què costen l'any", eur0(tot), "≈ " + eur0(tot / 12) + " al mes"));
+  if (pr.length) K.appendChild(stat("Proper cobrament", pr[0].d.slice(8, 10).replace(/^0/, "") + " " + MESOS[+pr[0].d.slice(5, 7) - 1],
+    pr[0].x.nom + " · " + quanFalta(pr[0].d)));
+  K.appendChild(stat("Per completar", String(sense.length), sense.length ? llistaCat(sense.map(function (x) { return x.nom; })) : "Totes tenen import"));
+  var confirmar = X.filter(function (x) { return x.estat === "per confirmar" && anual(x) !== null; });
+  $("altres-kpi-note").textContent = "La suma és de les " + amb.length + " que tenen import." +
+    (confirmar.length ? " Hi compta " + llistaCat(confirmar.map(function (x) { return (x.dit || x.nom).replace(/^\w/, function (c) { return c.toLowerCase(); }); })) + " amb un preu per confirmar." : "");
+
+  $("altres-propers-box").hidden = !pr.length;
+  pr.forEach(function (p) {
+    var r = el("div", "proper"), dia = el("div", "dia");
+    dia.appendChild(el("b", "", String(+p.d.slice(8, 10))));
+    dia.appendChild(el("small", "", MESOS[+p.d.slice(5, 7) - 1]));
+    r.appendChild(dia);
+    var q = el("div", "q");
+    q.appendChild(el("b", "", p.x.nom));
+    q.appendChild(el("small", "", [p.x.companyia, quanFalta(p.d)].filter(Boolean).join(" · ")));
+    r.appendChild(q);
+    var v = el("div", "v", ok(p.x.import) ? eur(p.x.import) : "—");
+    if (p.x.estat) v.appendChild(el("small", "", p.x.estat));
+    r.appendChild(v);
+    P.appendChild(r);
+  });
+
+  var grups = GRUPS.slice();
+  X.forEach(function (x) { if (!grups.some(function (g) { return g.k === x.grup; })) grups.push({ k: x.grup, nom: x.grup ? cap(x.grup) : "Altres" }); });
+  grups.forEach(function (g) {
+    var xs = X.filter(function (x) { return (x.grup || undefined) === (g.k || undefined); });
+    if (!xs.length) return;
+    G.appendChild(el("h2", "", g.nom));
+    xs.forEach(function (x) { G.appendChild(targetaDespesa(x)); });
+  });
 }
 
 function pintaPeu() {
