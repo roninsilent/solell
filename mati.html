@@ -9,33 +9,34 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Matí">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#15171B">
+<meta name="theme-color" content="#1B2831">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <link rel="apple-touch-icon" href="icona.png">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%2315171B'/><circle cx='16' cy='11' r='6.2' fill='%23E8A05E'/><path d='M2.6 24 16 13l13.4 11' fill='none' stroke='%23E8632E' stroke-width='3.6' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-8 -11.75 116 116'%3E%3Crect x='-8' y='-11.75' width='116' height='116' rx='24' fill='%231B2831'/%3E%3Cg fill='none' stroke-width='5.5'%3E%3Cpath stroke='%232864A2' d='M69.2 2H2.4V13.6H26.5V90.5H11.8V49.98M36.8 2V28.85M36.8 63.77V92.5M1.3 58.85L50 17.7L98.7 58.85M88.2 49.98V63.2'/%3E%3Cpath stroke='%23A1623A' d='M97.35 26.23A36.3 37.7 0 1 0 97.35 79.17L89.77 70.13A24.7 25.9 0 1 1 89.77 35.27Z'/%3E%3Cpath stroke='%232864A2' d='M36 29.53L50 17.7L57.77 24.26'/%3E%3C/g%3E%3C/svg%3E">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <style>
 :root{
-  --paper:#15171B; --surface:#1C1F24; --ink:#F4F2EC; --ink-soft:#A9A79F; --ink-dim:#6F6D66;
-  --line:#2B2E34; --line-strong:#3A3E45; --alert:#F0796B; --good:#8FC48A; --hub:#22262C;
+  --paper:#1B2831; --surface:#21303B; --ink:#F3F5F7; --ink-soft:#A7B3BD; --ink-dim:#7A8A96;
+  --line:#2D3D49; --line-strong:#3B4D5A; --alert:#F0796B; --good:#8FC48A; --hub:#273846;
   --r:12px;
-  --clay:#E8632E; --clay-soft:rgba(232,99,46,.14);
-  --teal:#52B7C9; --teal-soft:rgba(82,183,201,.14);
-  --oliva:var(--clay); --fusta:var(--teal);
-  --sol:#E8A05E; --teulada:#E8632E;
-  --serif:"Fraunces", Georgia, "Times New Roman", serif;
+  /* el coure i el blau del logo; els -clar són per a text i icones sobre el fons fosc */
+  --coure:#A1623A; --coure-clar:#D49166; --coure-soft:rgba(212,145,102,.15);
+  --blau:#2864A2; --blau-clar:#78A9E0; --blau-soft:rgba(120,169,224,.15);
+  --display:"Montserrat", "Avenir Next", "Segoe UI", sans-serif;
   --sans:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  /* sèries: el fang i el blau de la casa, i les altres dues a una claror
-     diferent de les seves, per si algú no en distingeix el to */
-  --c-llum:#E8632E; --c-aigua:#52B7C9; --c-tel:#8E63AB; --c-exc:#8FC48A;
-  --hl:rgba(244,242,236,.07);
+  /* sèries: el coure i el blau de la casa, un gerd per al telèfon i un verd per
+     als excedents. Comprovades per a daltonisme sobre el fons de les targetes */
+  --c-llum:#CB7D34; --c-aigua:#588CDA; --c-tel:#BF5C8F; --c-exc:#3AA273;
+  --hl:rgba(243,245,247,.07);
   color-scheme:dark;
 }
-@font-face{font-family:"Fraunces";font-weight:600;font-style:normal;font-display:swap;
-  src:url("fraunces-600.woff2") format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:400;font-style:normal;font-display:swap;
+  src:url("montserrat-400.woff2") format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:600;font-style:normal;font-display:swap;
+  src:url("montserrat-600.woff2") format("woff2")}
 
 
 *{box-sizing:border-box}
@@ -52,14 +53,14 @@ a{color:inherit}
 
 header{padding:34px 0 18px}
 .brandbar{display:flex;align-items:center;gap:11px;margin-bottom:20px}
-.marca{width:42px;height:42px;flex:none;display:block;margin:-4px 0}
-.brandname{font-family:var(--serif);font-size:17px;font-weight:600;color:var(--clay)}
+.marca{width:52px;height:48px;flex:none;display:block;margin:-5px 0}
+.brandname{font-family:var(--display);font-size:15px;font-weight:400;letter-spacing:.34em;color:var(--ink)}
 .altra{margin-left:auto;flex:none;text-decoration:none;color:var(--ink-soft);
   border:1px solid var(--line-strong);border-radius:999px;padding:5px 13px;
   font-size:12.5px;font-weight:700;white-space:nowrap}
-.altra:hover{color:var(--oliva);border-color:var(--oliva)}
-h1{font-family:var(--serif);font-weight:600;font-size:clamp(28px,6vw,38px);
-  letter-spacing:0;line-height:1.26;margin:0;max-width:16ch;text-wrap:balance}
+.altra:hover{color:var(--coure-clar);border-color:var(--coure-clar)}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(26px,5.4vw,34px);
+  letter-spacing:-.01em;line-height:1.25;margin:0;max-width:16ch;text-wrap:balance}
 .sub{color:var(--ink-soft);font-size:14px;margin:9px 0 0}
 .acctbar{display:flex;align-items:center;gap:8px;margin-top:12px}
 /* el correu empenyia el botó de tancar sessió fora de la pantalla al mòbil. Que
@@ -74,11 +75,11 @@ nav{display:flex;gap:0;border-bottom:1px solid var(--line-strong);margin:26px 0 
 nav::-webkit-scrollbar{display:none}
 nav button{background:none;border:0;border-bottom:2px solid transparent;padding:10px 15px 9px;margin-bottom:-1px;cursor:pointer;white-space:nowrap;color:var(--ink-soft);font-weight:600}
 nav button:hover{color:var(--ink)}
-nav button[aria-selected="true"]{color:var(--oliva);border-bottom-color:var(--oliva);font-weight:800}
-nav button:focus-visible,.btn:focus-visible,input:focus-visible,.chips button:focus-visible,a:focus-visible,.pickbtn:focus-visible{outline:2px solid var(--oliva);outline-offset:2px}
+nav button[aria-selected="true"]{color:var(--coure-clar);border-bottom-color:var(--coure-clar);font-weight:800}
+nav button:focus-visible,.btn:focus-visible,input:focus-visible,.chips button:focus-visible,a:focus-visible,.pickbtn:focus-visible{outline:2px solid var(--coure-clar);outline-offset:2px}
 
 section{padding-top:24px}
-h2{font-family:var(--serif);font-size:21px;font-weight:600;letter-spacing:0;margin:36px 0 6px}
+h2{font-family:var(--display);font-size:19px;font-weight:600;letter-spacing:-.005em;margin:36px 0 6px}
 section > h2:first-child{margin-top:0}
 .hint{color:var(--ink-soft);font-size:13px;margin:0 0 14px;max-width:64ch}
 .note{font-size:13px;color:var(--ink-soft);margin:0}
@@ -86,14 +87,14 @@ section > h2:first-child{margin-top:0}
 input[type=search]{background:var(--surface);border:1px solid var(--line-strong);color:var(--ink);
   padding:9px 12px;border-radius:10px;font:inherit;width:100%;margin-bottom:12px}
 .btn{background:var(--surface);border:1px solid var(--line-strong);border-radius:10px;padding:8px 14px;cursor:pointer;font-weight:600}
-.btn:hover{border-color:var(--oliva);color:var(--oliva)}
-.btn.primary{background:var(--clay);color:#15171B;border-color:var(--clay);font-weight:700}
-.btn.primary:hover{opacity:.88}
+.btn:hover{border-color:var(--coure-clar);color:var(--coure-clar)}
+.btn.primary{background:var(--coure);color:#fff;border-color:var(--coure);font-weight:700}
+.btn.primary:hover{background:#B16D42;border-color:#B16D42;color:#fff}
 
 .chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .chips::-webkit-scrollbar{display:none}
 .chips button{flex:none;display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line-strong);border-radius:20px;padding:5px 12px;font-size:12.5px;font-weight:500;cursor:pointer;white-space:nowrap}
-.chips button[aria-pressed="true"]{background:var(--clay);color:#15171B;border-color:var(--clay);font-weight:700}
+.chips button[aria-pressed="true"]{background:var(--coure);color:#fff;border-color:var(--coure);font-weight:700}
 
 .card{border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:16px;background:var(--surface)}
 .card h3{margin:0 0 2px;font-size:15px;font-weight:600;letter-spacing:0}
@@ -102,16 +103,16 @@ input[type=search]{background:var(--surface);border:1px solid var(--line-strong)
 .statrow.tres{grid-template-columns:repeat(3,1fr)}
 .stat{border:1px solid var(--line);border-radius:var(--r);padding:13px 14px;background:var(--surface);min-width:0}
 .stat span{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-soft);line-height:1.25;font-weight:600}
-.stat b{display:block;font-family:var(--serif);font-size:25px;font-weight:600;margin:5px 0 2px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.stat b{display:block;font-family:var(--display);font-size:23px;font-weight:600;margin:5px 0 2px;white-space:nowrap;font-variant-numeric:tabular-nums}
 .stat small{display:block;font-size:12px;color:var(--ink-soft);line-height:1.35}
 /* el primer del resum és la xifra que ve a mirar: ocupa tota l'amplada */
 #kpis{grid-template-columns:repeat(3,1fr)}
 #kpis .stat:first-child{grid-column:1/-1;background:var(--hub);border-color:var(--line-strong);padding:20px 22px}
-#kpis .stat:first-child b{font-size:clamp(38px,9vw,52px);letter-spacing:0;margin:8px 0 5px}
+#kpis .stat:first-child b{font-size:clamp(34px,8vw,46px);letter-spacing:-.01em;margin:8px 0 5px}
 #kpis .stat:first-child span{font-size:13px}
 #kpis .stat:first-child small{font-size:13.5px}
 @media(max-width:560px){#kpis{grid-template-columns:1fr 1fr}}
-@media(max-width:560px){.statrow{grid-template-columns:1fr 1fr} .stat b{font-size:20px}}
+@media(max-width:560px){.statrow{grid-template-columns:1fr 1fr} .stat b{font-size:19px}}
 @media(max-width:340px){.statrow.tres{grid-template-columns:1fr 1fr}}
 .sw{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}
 
@@ -175,8 +176,8 @@ ul.mini li{margin:6px 0;line-height:1.45}
 
 .gate{position:fixed;inset:0;background:var(--paper);z-index:60;display:flex;align-items:center;justify-content:center;padding:24px}
 .gate-card{max-width:360px;width:100%;text-align:center}
-.gate-card .marca{width:72px;height:72px;margin:0 auto 20px}
-.gate-card h2{font-family:var(--serif);font-size:24px;font-weight:600;letter-spacing:0;margin:0 0 10px}
+.gate-card .marca{width:92px;height:86px;margin:0 auto 22px}
+.gate-card h2{font-family:var(--display);font-size:24px;font-weight:600;letter-spacing:0;margin:0 0 10px}
 .gate-card p{color:var(--ink-soft);font-size:14px;line-height:1.5;margin:0 0 20px}
 .gate-card input{margin-bottom:10px;background:var(--surface);border:1px solid var(--line-strong);color:var(--ink);padding:10px 12px;border-radius:10px;font:inherit;width:100%}
 .gate-card .btn{width:100%;padding:11px;font-size:14.5px}
@@ -188,10 +189,10 @@ ul.mini li{margin:6px 0;line-height:1.45}
 /* ---- el resum del dia, tal com era ---- */
 .shell{ font-family:var(--sans); color:var(--ink); }
 .eyebrow{ display:flex; align-items:center; gap:8px; margin-bottom:18px; }
-.eyebrow .dot{ width:7px; height:7px; border-radius:50%; background:var(--clay); flex:none; }
-.eyebrow span{ text-transform:uppercase; letter-spacing:0.14em; font-size:12px; font-weight:600; color:var(--clay); }
+.eyebrow .dot{ width:7px; height:7px; border-radius:50%; background:var(--coure-clar); flex:none; }
+.eyebrow span{ text-transform:uppercase; letter-spacing:0.14em; font-size:12px; font-weight:600; color:var(--coure-clar); }
 .headline{
-  font-family:var(--serif); font-weight:600; font-size:38px; line-height:1.28;
+  font-family:var(--display); font-weight:600; font-size:34px; line-height:1.25; letter-spacing:-.01em;
   color:var(--ink); margin:0 0 36px; max-width:650px; text-wrap:balance;
 }
 .pill-row{ display:flex; flex-wrap:wrap; gap:12px; margin-bottom:48px; }
@@ -203,7 +204,7 @@ ul.mini li{margin:6px 0;line-height:1.45}
 .pill .ic{ color:var(--ink-soft); margin-top:2px; }
 .pill-text{ font-size:14px; line-height:1.5; color:var(--ink-soft); min-width:0; }
 .pill-text b{ color:var(--ink); font-weight:600; }
-.umbrella{ color:var(--clay); font-weight:600; }
+.umbrella{ color:var(--coure-clar); font-weight:600; }
 .section-label{
   text-transform:uppercase; letter-spacing:0.1em; font-size:12px; font-weight:600;
   color:var(--ink-dim); margin:0 0 16px;
@@ -211,18 +212,18 @@ ul.mini li{margin:6px 0;line-height:1.45}
 .day-grid{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:14px; margin-bottom:40px; }
 .day-card{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:18px; }
 .icon-box{ width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex:none; }
-.day-card .icon-box{ background:var(--clay-soft); margin-bottom:14px; }
-.day-card .ic{ color:var(--clay); }
+.day-card .icon-box{ background:var(--coure-soft); margin-bottom:14px; }
+.day-card .ic{ color:var(--coure-clar); }
 .time{ font-weight:600; font-size:14px; color:var(--ink); margin-bottom:6px; font-variant-numeric:tabular-nums; }
 .phrase{ font-size:14px; line-height:1.5; color:var(--ink-soft); }
 .work-card{
-  background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--teal);
+  background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--blau);
   border-radius:14px; padding:18px 20px; display:flex; gap:14px; align-items:flex-start; margin-bottom:40px;
 }
-.work-card .icon-box{ background:var(--teal-soft); }
-.work-card .ic{ color:var(--teal); width:16px; height:16px; }
+.work-card .icon-box{ background:var(--blau-soft); }
+.work-card .ic{ color:var(--blau-clar); width:16px; height:16px; }
 .work-text{ min-width:0; }
-.work-text .label{ text-transform:uppercase; letter-spacing:0.08em; font-size:11px; font-weight:600; color:var(--teal); margin-bottom:6px; }
+.work-text .label{ text-transform:uppercase; letter-spacing:0.08em; font-size:11px; font-weight:600; color:var(--blau-clar); margin-bottom:6px; }
 .resolved-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:40px; }
 .resolved-list:last-child{ margin-bottom:0; }
 .resolved-item{
@@ -231,14 +232,14 @@ ul.mini li{margin:6px 0;line-height:1.45}
 }
 .resolved-item > div:last-child{ min-width:0; }
 .resolved-item .icon-box{ width:36px; height:36px; }
-.icon-box.mail{ background:var(--clay-soft); }
-.icon-box.mail .ic{ color:var(--clay); width:16px; height:16px; }
+.icon-box.mail{ background:var(--coure-soft); }
+.icon-box.mail .ic{ color:var(--coure-clar); width:16px; height:16px; }
 .icon-box.ig{ background:linear-gradient(135deg, #4F5BD5, #962FBF 35%, #D62976 60%, #FA7E1E 80%, #FEDA75); }
 .icon-box.ig .ic{ color:#FFFFFF; width:16px; height:16px; }
 .r-title{ font-weight:600; font-size:14.5px; color:var(--ink); margin-bottom:5px; }
 .r-phrase{ font-size:14px; line-height:1.5; color:var(--ink-soft); overflow-wrap:anywhere; }
 .r-phrase a{ color:var(--ink-soft); text-decoration:underline; text-underline-offset:2px; }
-.r-phrase a:focus-visible{ outline:2px solid var(--clay); outline-offset:2px; border-radius:2px; }
+.r-phrase a:focus-visible{ outline:2px solid var(--coure-clar); outline-offset:2px; border-radius:2px; }
 .ic{
   display:block; flex:none; width:18px; height:18px; background-color:currentColor;
   -webkit-mask:var(--m) center / contain no-repeat; mask:var(--m) center / contain no-repeat;
@@ -254,23 +255,23 @@ ul.mini li{margin:6px 0;line-height:1.45}
 .i-ig{ --m:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Crect x=%223%22 y=%223%22 width=%2218%22 height=%2218%22 rx=%225%22/%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%224%22/%3E%3Ccircle cx=%2217.2%22 cy=%226.8%22 r=%220.7%22 fill=%22%23000%22 stroke=%22none%22/%3E%3C/svg%3E"); }
 
 @media (max-width:640px){
-  .headline{ font-size:28px; }
+  .headline{ font-size:26px; }
   .day-grid{ grid-template-columns:1fr; }
 }
 
 /* ---- el que envolta el resum ---- */
-.brandname{font-family:var(--serif);font-size:17px;font-weight:600;letter-spacing:0;color:var(--clay)}
+.brandname{font-family:var(--display);font-size:15px;font-weight:400;letter-spacing:.34em;color:var(--ink)}
 .altra{margin-left:auto;flex:none;text-decoration:none;color:var(--ink-soft);
   border:1px solid var(--line-strong);border-radius:999px;padding:5px 13px;
   font-size:12.5px;font-weight:600;white-space:nowrap}
-.altra:hover{color:var(--clay);border-color:var(--clay)}
+.altra:hover{color:var(--coure-clar);border-color:var(--coure-clar)}
 #dies{margin:0 0 30px}
 #dies button{border-radius:999px;font-weight:600;font-variant-numeric:tabular-nums}
-#dies button[aria-pressed="true"]{background:var(--clay);color:#15171B;border-color:var(--clay)}
+#dies button[aria-pressed="true"]{background:var(--coure);color:#fff;border-color:var(--coure)}
 #meta{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);
   font-size:12.5px;color:var(--ink-dim);line-height:1.5}
-.gate-card h2{font-family:var(--serif);font-weight:600;letter-spacing:0}
-.empty-state b{font-family:var(--serif);font-weight:600}
+.gate-card h2{font-family:var(--display);font-weight:600;letter-spacing:0}
+.empty-state b{font-family:var(--display);font-weight:600}
 
 /* ---------- ios-zoom: que l'iPhone no ampliï la pàgina ----------
    Safari a l'iOS amplia la pàgina quan poses el cursor en un camp de menys de
@@ -286,7 +287,7 @@ ul.mini li{margin:6px 0;line-height:1.45}
 
 <div class="gate" id="gate">
   <div class="gate-card">
-    <svg class="marca" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><circle cx="16" cy="11" r="6.2" fill="var(--sol)"/><path d="M2.6 24 16 13l13.4 11" fill="none" stroke="var(--teulada)" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <svg class="marca" viewBox="-1 -1 102 94.5" aria-hidden="true" focusable="false"><g fill="none" stroke-width="4"><path stroke="#2864A2" d="M69.2 2H2.4V13.6H26.5V90.5H11.8V49.98M36.8 2V28.85M36.8 63.77V92.5M1.3 58.85L50 17.7L98.7 58.85M88.2 49.98V63.2"/><path stroke="#A1623A" d="M97.35 26.23A36.3 37.7 0 1 0 97.35 79.17L89.77 70.13A24.7 25.9 0 1 1 89.77 35.27Z"/><path stroke="#2864A2" d="M36 29.53L50 17.7L57.77 24.26"/></g></svg>
     <div id="gate-setup">
       <h2>Un pas, un cop</h2>
       <p>Enganxa el Client ID que t'ha donat Google Cloud. Només cal fer-ho una vegada i val per a totes les apps.</p>
@@ -307,7 +308,7 @@ ul.mini li{margin:6px 0;line-height:1.45}
 
 <header>
   <div class="brandbar">
-    <svg class="marca" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><circle cx="16" cy="11" r="6.2" fill="var(--sol)"/><path d="M2.6 24 16 13l13.4 11" fill="none" stroke="var(--teulada)" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <svg class="marca" viewBox="-1 -1 102 94.5" aria-hidden="true" focusable="false"><g fill="none" stroke-width="4"><path stroke="#2864A2" d="M69.2 2H2.4V13.6H26.5V90.5H11.8V49.98M36.8 2V28.85M36.8 63.77V92.5M1.3 58.85L50 17.7L98.7 58.85M88.2 49.98V63.2"/><path stroke="#A1623A" d="M97.35 26.23A36.3 37.7 0 1 0 97.35 79.17L89.77 70.13A24.7 25.9 0 1 1 89.77 35.27Z"/><path stroke="#2864A2" d="M36 29.53L50 17.7L57.77 24.26"/></g></svg>
     <span class="brandname">Solell 19</span>
     <a class="altra" href="index.html">Menú</a>
   </div>

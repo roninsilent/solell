@@ -9,22 +9,24 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Solell">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#15171B">
+<meta name="theme-color" content="#1B2831">
 <link rel="apple-touch-icon" href="icona.png">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2315171B'/%3E%3Ccircle cx='16' cy='11' r='6.2' fill='%23E8A05E'/%3E%3Cpath d='M2.6 24 16 13l13.4 11' fill='none' stroke='%23E8632E' stroke-width='3.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-8 -11.75 116 116'%3E%3Crect x='-8' y='-11.75' width='116' height='116' rx='24' fill='%231B2831'/%3E%3Cg fill='none' stroke-width='5.5'%3E%3Cpath stroke='%232864A2' d='M69.2 2H2.4V13.6H26.5V90.5H11.8V49.98M36.8 2V28.85M36.8 63.77V92.5M1.3 58.85L50 17.7L98.7 58.85M88.2 49.98V63.2'/%3E%3Cpath stroke='%23A1623A' d='M97.35 26.23A36.3 37.7 0 1 0 97.35 79.17L89.77 70.13A24.7 25.9 0 1 1 89.77 35.27Z'/%3E%3Cpath stroke='%232864A2' d='M36 29.53L50 17.7L57.77 24.26'/%3E%3C/g%3E%3C/svg%3E">
 <style>
 :root{
-  --bg:#15171B; --surface:#1C1F24; --ink:#F4F2EC; --ink-soft:#A9A79F; --ink-dim:#6F6D66;
-  --line:#2B2E34; --line-strong:#3A3E45;
-  --clay:#E8632E; --clay-soft:rgba(232,99,46,.14);
-  --teal:#52B7C9; --teal-soft:rgba(82,183,201,.14);
-  --sol:#E8A05E; --teulada:#E8632E;
-  --serif:"Fraunces", Georgia, "Times New Roman", serif;
+  --bg:#1B2831; --surface:#21303B; --ink:#F3F5F7; --ink-soft:#A7B3BD; --ink-dim:#7A8A96;
+  --line:#2D3D49; --line-strong:#3B4D5A;
+  /* el coure i el blau del logo; els -clar són per a text i icones sobre el fons fosc */
+  --coure:#A1623A; --coure-clar:#D49166; --coure-soft:rgba(212,145,102,.15);
+  --blau:#2864A2; --blau-clar:#78A9E0; --blau-soft:rgba(120,169,224,.15);
+  --display:"Montserrat", "Avenir Next", "Segoe UI", sans-serif;
   --sans:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color-scheme:dark;
 }
-@font-face{font-family:"Fraunces";font-weight:600;font-style:normal;font-display:swap;
-  src:url("fraunces-600.woff2") format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:400;font-style:normal;font-display:swap;
+  src:url("montserrat-400.woff2") format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:600;font-style:normal;font-display:swap;
+  src:url("montserrat-600.woff2") format("woff2")}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--ink)}
 body{font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
@@ -37,10 +39,10 @@ a{color:inherit}
   padding-right:max(20px, env(safe-area-inset-right, 0px))}
 
 .brandbar{display:flex;align-items:center;gap:11px;margin-bottom:26px}
-.marca{width:42px;height:42px;flex:none;display:block;margin:-4px 0}
-.brandname{font-family:var(--serif);font-size:17px;font-weight:600;color:var(--clay)}
+.marca{width:52px;height:48px;flex:none;display:block;margin:-5px 0}
+.brandname{font-family:var(--display);font-size:15px;font-weight:400;letter-spacing:.34em;color:var(--ink)}
 
-h1{font-family:var(--serif);font-weight:600;font-size:clamp(28px,6vw,38px);line-height:1.28;
+h1{font-family:var(--display);font-weight:600;font-size:clamp(26px,5.4vw,34px);line-height:1.25;letter-spacing:-.01em;
   margin:0 0 10px;max-width:16ch;text-wrap:balance}
 .sub{color:var(--ink-soft);font-size:14px;margin:0 0 40px;max-width:52ch}
 
@@ -49,18 +51,18 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(28px,6vw,38px);line-
 .apps{display:flex;flex-direction:column;gap:10px;margin:0 0 30px;padding:0;list-style:none}
 .app{display:block;text-decoration:none;background:var(--surface);border:1px solid var(--line);
   border-radius:14px;padding:17px 19px}
-.app:hover,.app:focus-visible{border-color:var(--clay)}
-.app:focus-visible{outline:2px solid var(--clay);outline-offset:2px}
+.app:hover,.app:focus-visible{border-color:var(--coure-clar)}
+.app:focus-visible{outline:2px solid var(--coure-clar);outline-offset:2px}
 .aptop{display:flex;align-items:center;gap:13px}
 .icon-box{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;
-  justify-content:center;flex:none;background:var(--clay-soft)}
-.app:nth-child(even) .icon-box{background:var(--teal-soft)}
-.ic{display:block;flex:none;width:19px;height:19px;background-color:var(--clay);
+  justify-content:center;flex:none;background:var(--coure-soft)}
+.app:nth-child(even) .icon-box{background:var(--blau-soft)}
+.ic{display:block;flex:none;width:19px;height:19px;background-color:var(--coure-clar);
   -webkit-mask:var(--m) center / contain no-repeat;mask:var(--m) center / contain no-repeat}
-.app:nth-child(even) .ic{background-color:var(--teal)}
+.app:nth-child(even) .ic{background-color:var(--blau-clar)}
 .apnom{font-weight:600;font-size:15.5px;min-width:0;overflow-wrap:anywhere}
 .apfletxa{margin-left:auto;flex:none;color:var(--ink-dim);font-size:15px}
-.app:hover .apfletxa{color:var(--clay)}
+.app:hover .apfletxa{color:var(--coure-clar)}
 .apdesc{font-size:13.5px;line-height:1.5;color:var(--ink-soft);margin:9px 0 0;overflow-wrap:anywhere}
 
 .i-factura{--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 3.5h14v17l-2.3-1.6-2.4 1.6-2.3-1.6-2.4 1.6L7.3 19 5 20.5z'/%3E%3Cpath d='M8.6 8h6.8M8.6 12h6.8'/%3E%3C/svg%3E")}
@@ -70,9 +72,9 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(28px,6vw,38px);line-
 .nota{font-size:12.5px;color:var(--ink-dim);line-height:1.6;margin:0}
 .nota a{color:var(--ink-soft)}
 .carregant{color:var(--ink-dim);font-size:13.5px;margin:0 0 30px}
-.avis{border:1px solid var(--line-strong);border-left:3px solid var(--clay);border-radius:12px;
+.avis{border:1px solid var(--line-strong);border-left:3px solid var(--coure);border-radius:12px;
   padding:14px 16px;margin:0 0 26px;font-size:13.5px;line-height:1.55;color:var(--ink-soft)}
-.avis b{color:var(--ink);font-weight:600;display:block;margin-bottom:4px;font-family:var(--serif)}
+.avis b{color:var(--ink);font-weight:600;display:block;margin-bottom:4px;font-family:var(--display)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -81,11 +83,7 @@ h1{font-family:var(--serif);font-weight:600;font-size:clamp(28px,6vw,38px);line-
 <div class="wrap">
 
   <div class="brandbar">
-    <svg class="marca" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-      <circle cx="16" cy="11" r="6.2" fill="var(--sol)"/>
-      <path d="M2.6 24 16 13l13.4 11" fill="none" stroke="var(--teulada)"
-            stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
+    <svg class="marca" viewBox="-1 -1 102 94.5" aria-hidden="true" focusable="false"><g fill="none" stroke-width="4"><path stroke="#2864A2" d="M69.2 2H2.4V13.6H26.5V90.5H11.8V49.98M36.8 2V28.85M36.8 63.77V92.5M1.3 58.85L50 17.7L98.7 58.85M88.2 49.98V63.2"/><path stroke="#A1623A" d="M97.35 26.23A36.3 37.7 0 1 0 97.35 79.17L89.77 70.13A24.7 25.9 0 1 1 89.77 35.27Z"/><path stroke="#2864A2" d="M36 29.53L50 17.7L57.77 24.26"/></g></svg>
     <span class="brandname">Solell 19</span>
   </div>
 
