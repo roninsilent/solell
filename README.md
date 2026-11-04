@@ -55,12 +55,27 @@ hi poden entrar.
 
 ## El vestit
 
-Les tres pàgines comparteixen el disseny que el resum matutí ja tenia: fons
-#15171B, Fraunces als titulars i a les xifres, el taronja fang per als accents
-i el blau per al que és secundari. La lletra de pal és la del sistema i la
-Fraunces és al repositori, de manera que cap pàgina no depèn de Google Fonts
-ni de cap altre lloc.
+![Solell 19](logo.svg)
 
-Als gràfics de les factures, la llum és el fang i l'aigua el blau; el telèfon
-va a una pruna més fosca i els excedents a un verd més clar, perquè les quatre
-sèries es distingeixin també per la claror i no només pel to.
+El logo és la T i la C entrellaçades dins la silueta de la casa: la T i la
+teulada en blau (#2864A2), la C en coure (#A1623A), sobre un blau nit
+(#1B2831). La teulada passa per sobre de l'arc de fora de la C i per sota del de
+dins. `logo.svg` és el logo sencer, redibuixat en vector; dins de cada pàgina
+hi ha només la marca, i `icona.png` és la que surt a la pantalla d'inici de
+l'iPhone. A la pestanya del navegador la marca va amb el traç més gruixut,
+perquè a 16 píxels el fi es perdia.
+
+Les tres pàgines fan servir el mateix fons blau nit i la Montserrat del logo:
+la regular amb les lletres espaiades per al nom de la casa, i la seminegreta
+per als titulars i les xifres. La resta del text és la lletra del sistema. La
+Montserrat és al repositori, retallada als caràcters llatins, de manera que cap
+pàgina no depèn de Google Fonts ni de cap altre lloc.
+
+El coure i el blau del logo són foscos per anar com a text sobre el blau nit,
+així que cada un té una versió més clara per a enllaços, icones i accents
+(#D49166 i #78A9E0). El coure tal qual omple els botons, amb el text en blanc.
+
+Als gràfics de les factures, la llum és el coure i l'aigua el blau; el telèfon
+va a un gerd i els excedents a un verd. Les quatre sèries s'han passat per un
+simulador de daltonisme sobre el fons de les targetes; la llum i els excedents
+són els que s'assemblen més, i per això uns van cap amunt i els altres cap avall.
