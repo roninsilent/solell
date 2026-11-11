@@ -86,6 +86,16 @@ El coure i el blau del logo són foscos per anar com a text sobre el blau nit,
 així que cada un té una versió més clara per a enllaços, icones i accents
 (#D49166 i #78A9E0). El coure tal qual omple els botons, amb el text en blanc.
 
+Els detalls visuals vénen del mediakit de Zenkai3D (`dossier.html`), canviant el
+taronja i el blau d'allà pel coure i el blau d'aquí. El titular és gran i
+atapeït, amb el tros que importa en coure. Els títols de secció són petits, en
+majúscules, i una ratlla els allarga fins al marge. Les xifres grans van en
+coure, i les de l'aigua en blau. Les targetes tenen les cantonades rectes i una
+vora de color a l'esquerra: blava a les dels gràfics, de coure a les despeses i
+als missatges del matí, i alternada a les apps del menú. La xifra gran del resum
+de factures i les targetes del dia la duen a dalt, de coure. Les píndoles (Menú, xips i pestanyes al mòbil) es queden rodones. Del mediakit no
+s'ha agafat la lletra ni el mode clar, perquè Solell ja té els seus.
+
 Als gràfics de les factures, la llum és el coure i l'aigua el blau; el telèfon
 va a un gerd i els excedents a un verd. Les quatre sèries s'han passat per un
 simulador de daltonisme sobre el fons de les targetes; la llum i els excedents
