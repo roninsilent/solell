@@ -76,6 +76,22 @@ h1{font-family:var(--display);font-weight:600;font-size:clamp(26px,5.4vw,34px);l
   padding:14px 16px;margin:0 0 26px;font-size:13.5px;line-height:1.55;color:var(--ink-soft)}
 .avis b{color:var(--ink);font-weight:600;display:block;margin-bottom:4px;font-family:var(--display)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---------- els efectes del mediakit de Zenkai3D, amb el coure i el blau de casa ----------
+   Cantonades rectes, el titular gran i atapeït amb la part que importa en color, els
+   títols de secció petits i en majúscules amb una ratlla fins al marge, les xifres en
+   color i una vora de color a les targetes. Les píndoles (Menú, xips, pestanyes al
+   mòbil) es queden rodones, com al mediakit. */
+h1{font-size:clamp(30px,6.2vw,46px);line-height:1.08;letter-spacing:-.025em;max-width:15ch;margin:0 0 14px}
+h1 em{font-style:normal;color:var(--coure-clar)}
+.sub{font-size:clamp(14.5px,2.1vw,16.5px)}
+.section-label{display:flex;align-items:center;gap:10px;font-family:var(--sans);font-size:12px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 14px}
+.section-label::after{content:"";flex:1;height:1px;background:var(--line)}
+.app{border-radius:4px;border-left:3px solid var(--coure)}
+.app:nth-child(even){border-left-color:var(--blau)}
+.app:hover,.app:focus-visible{border-color:var(--coure-clar)}
+.icon-box,.avis{border-radius:4px}
 </style>
 </head>
 <body>
@@ -87,9 +103,10 @@ h1{font-family:var(--display);font-weight:600;font-size:clamp(26px,5.4vw,34px);l
     <span class="brandname">Solell 19</span>
   </div>
 
-  <h1>Les coses de casa.</h1>
+  <h1>Les coses <em>de casa</em>.</h1>
   <p class="sub">Tot el que es mira sol i et deixa la feina feta: les factures que arriben per correu i el resum de cada matí.</p>
 
+  <h2 class="section-label">Apps</h2>
   <p class="carregant" id="carregant">Buscant què hi ha…</p>
   <div class="avis" id="avis" hidden></div>
   <ul class="apps" id="apps"></ul>

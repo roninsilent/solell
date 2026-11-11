@@ -21,7 +21,7 @@
 :root{
   --paper:#1B2831; --surface:#21303B; --ink:#F3F5F7; --ink-soft:#A7B3BD; --ink-dim:#7A8A96;
   --line:#2D3D49; --line-strong:#3B4D5A; --alert:#F0796B; --good:#8FC48A; --hub:#273846;
-  --r:12px;
+  --r:4px;
   /* el coure i el blau del logo; els -clar són per a text i icones sobre el fons fosc */
   --coure:#A1623A; --coure-clar:#D49166; --coure-soft:rgba(212,145,102,.15);
   --blau:#2864A2; --blau-clar:#78A9E0; --blau-soft:rgba(120,169,224,.15);
@@ -235,6 +235,26 @@ ul.mini li{margin:6px 0;line-height:1.45}
 @media(max-width:560px){.tel .num{font-size:14px} .dval b{font-size:19px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
+/* ---------- els efectes del mediakit de Zenkai3D, amb el coure i el blau de casa ----------
+   Cantonades rectes, el titular gran i atapeït amb la part que importa en color, els
+   títols de secció petits i en majúscules amb una ratlla fins al marge, les xifres en
+   color i una vora de color a les targetes. Les píndoles (Menú, xips, pestanyes al
+   mòbil) es queden rodones, com al mediakit. */
+.btn,input[type=search],.gate-card input,.tel{border-radius:var(--r)}
+h1{font-size:clamp(30px,6.2vw,46px);line-height:1.08;letter-spacing:-.025em;max-width:15ch}
+h1 em{font-style:normal;color:var(--coure-clar)}
+.sub{font-size:clamp(14.5px,2.1vw,16.5px);margin-top:14px}
+section h2{display:flex;align-items:center;gap:10px;font-family:var(--sans);font-size:12px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin:44px 0 12px}
+section h2::after{content:"";flex:1;height:1px;background:var(--line)}
+.stat b{color:var(--coure-clar);font-size:clamp(21px,3.4vw,28px);letter-spacing:-.015em}
+#aigua-kpis .stat b{color:var(--blau-clar)}
+#kpis .stat:first-child{border-top:3px solid var(--coure)}
+.card{border-left:3px solid var(--blau)}
+.dcard{border-left-color:var(--coure)}
+.dval b,.proper .dia b{color:var(--coure-clar)}
+@media(max-width:560px){.stat b{font-size:21px}}
+
 /* ---------- ios-zoom: que l'iPhone no ampliï la pàgina ----------
    Safari a l'iOS amplia la pàgina quan poses el cursor en un camp de menys de
    16 px i, en sortir-ne, no la torna a reduir: es queda gran. Amb 16 px no ho
@@ -281,7 +301,7 @@ ul.mini li{margin:6px 0;line-height:1.45}
     <button class="btn" id="acct-reload">Torna a carregar</button>
     <button class="btn" id="acct-signout">Tanca sessió</button>
   </div>
-  <h1>Què costa la casa</h1>
+  <h1>Què costa <em>la casa</em></h1>
   <p class="sub" id="sub">Llum, aigua i telèfon.</p>
 </header>
 

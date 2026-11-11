@@ -21,7 +21,7 @@
 :root{
   --paper:#1B2831; --surface:#21303B; --ink:#F3F5F7; --ink-soft:#A7B3BD; --ink-dim:#7A8A96;
   --line:#2D3D49; --line-strong:#3B4D5A; --alert:#F0796B; --good:#8FC48A; --hub:#273846;
-  --r:12px;
+  --r:4px;
   /* el coure i el blau del logo; els -clar són per a text i icones sobre el fons fosc */
   --coure:#A1623A; --coure-clar:#D49166; --coure-soft:rgba(212,145,102,.15);
   --blau:#2864A2; --blau-clar:#78A9E0; --blau-soft:rgba(120,169,224,.15);
@@ -272,6 +272,21 @@ ul.mini li{margin:6px 0;line-height:1.45}
   font-size:12.5px;color:var(--ink-dim);line-height:1.5}
 .gate-card h2{font-family:var(--display);font-weight:600;letter-spacing:0}
 .empty-state b{font-family:var(--display);font-weight:600}
+
+/* ---------- els efectes del mediakit de Zenkai3D, amb el coure i el blau de casa ----------
+   Cantonades rectes, el titular gran i atapeït amb la part que importa en color, els
+   títols de secció petits i en majúscules amb una ratlla fins al marge, les xifres en
+   color i una vora de color a les targetes. Les píndoles (Menú, xips, pestanyes al
+   mòbil) es queden rodones, com al mediakit. */
+.btn,input[type=search],.gate-card input{border-radius:var(--r)}
+.headline{font-size:38px;line-height:1.12;letter-spacing:-.02em}
+.section-label{display:flex;align-items:center;gap:10px;color:var(--ink-soft);font-weight:700}
+.section-label::after{content:"";flex:1;height:1px;background:var(--line)}
+.pill,.day-card,.work-card,.resolved-item,.icon-box{border-radius:var(--r)}
+.day-card{border-top:3px solid var(--coure)}
+.resolved-item{border-left:3px solid var(--coure)}
+.time{color:var(--coure-clar)}
+@media (max-width:640px){.headline{font-size:28px}}
 
 /* ---------- ios-zoom: que l'iPhone no ampliï la pàgina ----------
    Safari a l'iOS amplia la pàgina quan poses el cursor en un camp de menys de
