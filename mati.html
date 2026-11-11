@@ -288,6 +288,58 @@ ul.mini li{margin:6px 0;line-height:1.45}
 .time{color:var(--coure-clar)}
 @media (max-width:640px){.headline{font-size:28px}}
 
+/* ---------- més efectes: el que es mou en entrar ----------
+   Tot dura menys d'un segon i només passa en obrir la pàgina o canviar de vista.
+   Amb «reduir el moviment» activat al sistema, no es mou res. */
+@keyframes entra{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes apareix{from{opacity:0}to{opacity:1}}
+@keyframes ratlla{from{transform:scaleX(0)}to{transform:none}}
+@keyframes obre{from{opacity:0;letter-spacing:.7em}to{opacity:1;letter-spacing:.34em}}
+/* el traç es fa amb guions de la llargada del camí; al final es treuen, que la
+   unió de l'últim tram quedi neta */
+@keyframes traca{0%{stroke-dasharray:1 1;stroke-dashoffset:1}99%{stroke-dasharray:1 1;stroke-dashoffset:0}100%{stroke-dasharray:none;stroke-dashoffset:0}}
+/* una llum de coure i una de blau, molt fluixes, darrere la capçalera */
+body{background:radial-gradient(900px 420px at 8% -140px,rgba(161,98,58,.14),transparent 70%) no-repeat,
+  radial-gradient(820px 400px at 96% -160px,rgba(40,100,162,.18),transparent 70%) no-repeat,var(--paper)}
+/* la marca es dibuixa sola: la T i la casa, després la C, i al final el tros de
+   teulada que passa per sobre de la C */
+.marca path{animation:traca 1.1s cubic-bezier(.65,0,.35,1) .1s both}
+.marca path+path{animation-duration:.9s;animation-delay:.55s}
+.marca path+path+path{animation-duration:.25s;animation-delay:1.4s}
+.brandname{animation:obre 1.1s cubic-bezier(.2,.7,.2,1) .35s both}
+.gate{background:inherit}
+/* el resum entra de baix a dalt, una peça darrere l'altra */
+#resum-cos .shell > *{animation:entra .55s cubic-bezier(.2,.7,.2,1) both}
+#resum-cos .shell > *:nth-child(2){animation-delay:0.05s}
+#resum-cos .shell > *:nth-child(3){animation-delay:0.10s}
+#resum-cos .shell > *:nth-child(4){animation-delay:0.15s}
+#resum-cos .shell > *:nth-child(5){animation-delay:0.20s}
+#resum-cos .shell > *:nth-child(6){animation-delay:0.25s}
+#resum-cos .shell > *:nth-child(7){animation-delay:0.30s}
+#resum-cos .shell > *:nth-child(8){animation-delay:0.35s}
+#resum-cos .shell > *:nth-child(9){animation-delay:0.40s}
+#resum-cos .shell > *:nth-child(10){animation-delay:0.45s}
+#resum-cos .shell > *:nth-child(11){animation-delay:0.50s}
+#resum-cos .shell > *:nth-child(12){animation-delay:0.55s}
+#resum-cos .shell > *:nth-child(n+13){animation-delay:0.60s}
+.day-grid > .day-card,.resolved-list > .resolved-item,.pill-row > .pill{animation:entra .5s cubic-bezier(.2,.7,.2,1) both}
+.day-grid > .day-card:nth-child(2){animation-delay:0.28s}
+.day-grid > .day-card:nth-child(3){animation-delay:0.36s}
+.day-grid > .day-card:nth-child(n+4){animation-delay:0.44s}
+.resolved-list > .resolved-item:nth-child(2){animation-delay:0.21s}
+.resolved-list > .resolved-item:nth-child(3){animation-delay:0.27s}
+.resolved-list > .resolved-item:nth-child(4){animation-delay:0.33s}
+.resolved-list > .resolved-item:nth-child(5){animation-delay:0.39s}
+.resolved-list > .resolved-item:nth-child(6){animation-delay:0.45s}
+.resolved-list > .resolved-item:nth-child(n+7){animation-delay:0.51s}
+.pill-row > .pill:nth-child(2){animation-delay:0.22s}
+.pill-row > .pill:nth-child(3){animation-delay:0.29s}
+.pill-row > .pill:nth-child(4){animation-delay:0.36s}
+.pill-row > .pill:nth-child(n+5){animation-delay:0.43s}
+.section-label::after{transform-origin:left;animation:ratlla .9s cubic-bezier(.2,.7,.2,1) .25s both}
+#dies button,.btn,.altra{transition:border-color .18s ease,color .18s ease,background-color .18s ease}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+
 /* ---------- ios-zoom: que l'iPhone no ampliï la pàgina ----------
    Safari a l'iOS amplia la pàgina quan poses el cursor en un camp de menys de
    16 px i, en sortir-ne, no la torna a reduir: es queda gran. Amb 16 px no ho
@@ -302,7 +354,7 @@ ul.mini li{margin:6px 0;line-height:1.45}
 
 <div class="gate" id="gate">
   <div class="gate-card">
-    <svg class="marca" viewBox="-1 -1 102 94.5" aria-hidden="true" focusable="false"><g fill="none" stroke-width="4"><path stroke="#2864A2" d="M69.2 2H2.4V13.6H26.5V90.5H11.8V49.98M36.8 2V28.85M36.8 63.77V92.5M1.3 58.85L50 17.7L98.7 58.85M88.2 49.98V63.2"/><path stroke="#A1623A" d="M97.35 26.23A36.3 37.7 0 1 0 97.35 79.17L89.77 70.13A24.7 25.9 0 1 1 89.77 35.27Z"/><path stroke="#2864A2" d="M36 29.53L50 17.7L57.77 24.26"/></g></svg>
+    <svg class="marca" viewBox="-1 -1 102 94.5" aria-hidden="true" focusable="false"><g fill="none" stroke-width="4"><path pathLength="1" stroke="#2864A2" d="M69.2 2H2.4V13.6H26.5V90.5H11.8V49.98M36.8 2V28.85M36.8 63.77V92.5M1.3 58.85L50 17.7L98.7 58.85M88.2 49.98V63.2"/><path pathLength="1" stroke="#A1623A" d="M97.35 26.23A36.3 37.7 0 1 0 97.35 79.17L89.77 70.13A24.7 25.9 0 1 1 89.77 35.27Z"/><path pathLength="1" stroke="#2864A2" d="M36 29.53L50 17.7L57.77 24.26"/></g></svg>
     <div id="gate-setup">
       <h2>Un pas, un cop</h2>
       <p>Enganxa el Client ID que t'ha donat Google Cloud. Només cal fer-ho una vegada i val per a totes les apps.</p>
@@ -323,7 +375,7 @@ ul.mini li{margin:6px 0;line-height:1.45}
 
 <header>
   <div class="brandbar">
-    <svg class="marca" viewBox="-1 -1 102 94.5" aria-hidden="true" focusable="false"><g fill="none" stroke-width="4"><path stroke="#2864A2" d="M69.2 2H2.4V13.6H26.5V90.5H11.8V49.98M36.8 2V28.85M36.8 63.77V92.5M1.3 58.85L50 17.7L98.7 58.85M88.2 49.98V63.2"/><path stroke="#A1623A" d="M97.35 26.23A36.3 37.7 0 1 0 97.35 79.17L89.77 70.13A24.7 25.9 0 1 1 89.77 35.27Z"/><path stroke="#2864A2" d="M36 29.53L50 17.7L57.77 24.26"/></g></svg>
+    <svg class="marca" viewBox="-1 -1 102 94.5" aria-hidden="true" focusable="false"><g fill="none" stroke-width="4"><path pathLength="1" stroke="#2864A2" d="M69.2 2H2.4V13.6H26.5V90.5H11.8V49.98M36.8 2V28.85M36.8 63.77V92.5M1.3 58.85L50 17.7L98.7 58.85M88.2 49.98V63.2"/><path pathLength="1" stroke="#A1623A" d="M97.35 26.23A36.3 37.7 0 1 0 97.35 79.17L89.77 70.13A24.7 25.9 0 1 1 89.77 35.27Z"/><path pathLength="1" stroke="#2864A2" d="M36 29.53L50 17.7L57.77 24.26"/></g></svg>
     <span class="brandname">Solell 19</span>
     <a class="altra" href="index.html">Menú</a>
   </div>

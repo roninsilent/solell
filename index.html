@@ -92,6 +92,43 @@ h1 em{font-style:normal;color:var(--coure-clar)}
 .app:nth-child(even){border-left-color:var(--blau)}
 .app:hover,.app:focus-visible{border-color:var(--coure-clar)}
 .icon-box,.avis{border-radius:4px}
+
+/* ---------- més efectes: el que es mou en entrar ----------
+   Tot dura menys d'un segon i només passa en obrir la pàgina o canviar de vista.
+   Amb «reduir el moviment» activat al sistema, no es mou res. */
+@keyframes entra{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes apareix{from{opacity:0}to{opacity:1}}
+@keyframes ratlla{from{transform:scaleX(0)}to{transform:none}}
+@keyframes obre{from{opacity:0;letter-spacing:.7em}to{opacity:1;letter-spacing:.34em}}
+/* el traç es fa amb guions de la llargada del camí; al final es treuen, que la
+   unió de l'últim tram quedi neta */
+@keyframes traca{0%{stroke-dasharray:1 1;stroke-dashoffset:1}99%{stroke-dasharray:1 1;stroke-dashoffset:0}100%{stroke-dasharray:none;stroke-dashoffset:0}}
+/* una llum de coure i una de blau, molt fluixes, darrere la capçalera */
+body{background:radial-gradient(900px 420px at 8% -140px,rgba(161,98,58,.14),transparent 70%) no-repeat,
+  radial-gradient(820px 400px at 96% -160px,rgba(40,100,162,.18),transparent 70%) no-repeat,var(--bg)}
+/* la marca es dibuixa sola: la T i la casa, després la C, i al final el tros de
+   teulada que passa per sobre de la C */
+.marca path{animation:traca 1.1s cubic-bezier(.65,0,.35,1) .1s both}
+.marca path+path{animation-duration:.9s;animation-delay:.55s}
+.marca path+path+path{animation-duration:.25s;animation-delay:1.4s}
+.brandname{animation:obre 1.1s cubic-bezier(.2,.7,.2,1) .35s both}
+h1{animation:entra .6s cubic-bezier(.2,.7,.2,1) .15s both}
+.sub{animation:entra .6s cubic-bezier(.2,.7,.2,1) .25s both}
+.section-label{animation:apareix .5s .3s both}
+.section-label::after{transform-origin:left;animation:ratlla .9s cubic-bezier(.2,.7,.2,1) .35s both}
+/* les apps entren d'una en una */
+.apps > *{animation:entra .5s cubic-bezier(.2,.7,.2,1) .35s both}
+.apps > *:nth-child(2){animation-delay:0.42s}
+.apps > *:nth-child(3){animation-delay:0.49s}
+.apps > *:nth-child(4){animation-delay:0.56s}
+.apps > *:nth-child(5){animation-delay:0.63s}
+.apps > *:nth-child(6){animation-delay:0.70s}
+.apps > *:nth-child(n+7){animation-delay:0.77s}
+.app{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.app:hover{transform:translateY(-2px);box-shadow:0 12px 28px -16px rgba(0,0,0,.75)}
+.apfletxa{transition:transform .18s ease,color .18s ease}
+.app:hover .apfletxa{transform:translateX(3px)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
@@ -99,7 +136,7 @@ h1 em{font-style:normal;color:var(--coure-clar)}
 <div class="wrap">
 
   <div class="brandbar">
-    <svg class="marca" viewBox="-1 -1 102 94.5" aria-hidden="true" focusable="false"><g fill="none" stroke-width="4"><path stroke="#2864A2" d="M69.2 2H2.4V13.6H26.5V90.5H11.8V49.98M36.8 2V28.85M36.8 63.77V92.5M1.3 58.85L50 17.7L98.7 58.85M88.2 49.98V63.2"/><path stroke="#A1623A" d="M97.35 26.23A36.3 37.7 0 1 0 97.35 79.17L89.77 70.13A24.7 25.9 0 1 1 89.77 35.27Z"/><path stroke="#2864A2" d="M36 29.53L50 17.7L57.77 24.26"/></g></svg>
+    <svg class="marca" viewBox="-1 -1 102 94.5" aria-hidden="true" focusable="false"><g fill="none" stroke-width="4"><path pathLength="1" stroke="#2864A2" d="M69.2 2H2.4V13.6H26.5V90.5H11.8V49.98M36.8 2V28.85M36.8 63.77V92.5M1.3 58.85L50 17.7L98.7 58.85M88.2 49.98V63.2"/><path pathLength="1" stroke="#A1623A" d="M97.35 26.23A36.3 37.7 0 1 0 97.35 79.17L89.77 70.13A24.7 25.9 0 1 1 89.77 35.27Z"/><path pathLength="1" stroke="#2864A2" d="M36 29.53L50 17.7L57.77 24.26"/></g></svg>
     <span class="brandname">Solell 19</span>
   </div>
 
