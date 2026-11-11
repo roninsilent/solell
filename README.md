@@ -96,6 +96,19 @@ als missatges del matí, i alternada a les apps del menú. La xifra gran del res
 de factures i les targetes del dia la duen a dalt, de coure. Les píndoles (Menú, xips i pestanyes al mòbil) es queden rodones. Del mediakit no
 s'ha agafat la lletra ni el mode clar, perquè Solell ja té els seus.
 
+En obrir una pàgina, la marca es dibuixa sola. Primer surten la T i la casa,
+després la C, i al final el tros de teulada que passa per sobre de la C. El nom
+s'espaia fins a quedar com al logo. El titular i la resta pugen d'una en una, i
+les ratlles dels títols s'allarguen fins al marge. A les factures, les columnes
+dels gràfics creixen des de la línia de zero (les dels excedents, cap avall).
+Les xifres grans compten fins al seu valor quan apareixen, i al final hi queda
+el text exacte. Al resum, sota cada subministrament, una barreta mostra quina
+part del total s'emporta, amb el percentatge al costat. Darrere la capçalera hi
+ha una llum molt fluixa de coure i de blau. Les apps del menú i els telèfons
+d'«Altres despeses» s'aixequen una mica en passar-hi el ratolí. Tot dura menys
+d'un segon. Si el sistema té activat «reduir el moviment», no es mou res i tot
+surt ja al seu lloc.
+
 Als gràfics de les factures, la llum és el coure i l'aigua el blau; el telèfon
 va a un gerd i els excedents a un verd. Les quatre sèries s'han passat per un
 simulador de daltonisme sobre el fons de les targetes; la llum i els excedents
