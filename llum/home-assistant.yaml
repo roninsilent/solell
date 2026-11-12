@@ -1,0 +1,465 @@
+# Solell · llum
+#
+# Apunta quan marxa la llum i quan torna, les baixades i pujades de tensió i els
+# aparells que es queden sense corrent, i ho envia a l'script de Google
+# (llum/apps-script.gs) que ho desa al Drive. L'app llum.html ho llegeix.
+#
+# On va: /config/packages/solell_llum.yaml
+# Cal, una sola vegada:
+#   configuration.yaml   homeassistant:
+#                          packages: !include_dir_named packages
+#   secrets.yaml         solell_llum_url: "https://script.google.com/macros/s/…/exec?clau=…"
+#
+# Com ho sap:
+#   - Talls, quan el Home Assistant s'apaga amb la llum (no té SAI). Cada 30
+#     segons escriu l'hora en un fitxer. En tornar a arrencar, mira l'últim batec
+#     de la vegada anterior i si llavors es va aturar bé. Si no s'hi va aturar, ha
+#     estat un tall (o algú l'ha desendollat). L'hora en què ha tornat la llum la
+#     calcula l'script de Google amb el seu rellotge, perquè el d'aquí pot anar
+#     malament fins que torna internet.
+#   - Talls amb el Home Assistant encès: si l'alarma Ajax és connectada per SIA,
+#     o hi ha un SAI amb NUT, fa cas del que diuen.
+#   - Tensió: fa servir tots els sensors de tensió que troba (endolls Shelly o
+#     Tuya, un mesurador al quadre…). Avisa quan la tensió surt de 207-253 V.
+#   - Aparells sense corrent: al camp «Solell llum: aparells de prova» s'hi
+#     posen, separats per comes, els entity_id d'un endoll o d'un llum de cada
+#     circuit. Si n'hi ha un que passa més d'un minut i mig «no disponible», potser
+#     ha saltat aquell circuit.
+
+rest_command:
+  solell_llum:
+    url: !secret solell_llum_url
+    method: post
+    content_type: "application/json; charset=utf-8"
+    timeout: 30
+    payload: "{{ missatge if missatge is string else (missatge | to_json) }}"
+
+# El batec: l'hora i l'identificador d'aquesta encesa de la màquina. Quan
+# l'identificador canvia (s'ha tornat a encendre), el batec vell passa a
+# «anterior» abans d'escriure'n un de nou. L'estat del sensor és sempre «ok»,
+# perquè no ompli l'historial.
+command_line:
+  - sensor:
+      name: "Solell llum batec"
+      unique_id: solell_llum_batec
+      scan_interval: 30
+      command_timeout: 10
+      command: >-
+        d=/config/.solell_llum; mkdir -p "$d";
+        id=$(cat /proc/sys/kernel/random/boot_id);
+        if [ -f "$d/actual" ] && [ "$(cut -d' ' -f2 "$d/actual")" != "$id" ]; then mv "$d/actual" "$d/anterior"; fi;
+        echo "$(date +%s) $id" > "$d/actual"; echo ok
+
+shell_command:
+  solell_llum_batec: >-
+    d=/config/.solell_llum; mkdir -p "$d";
+    id=$(cat /proc/sys/kernel/random/boot_id);
+    if [ -f "$d/actual" ] && [ "$(cut -d' ' -f2 "$d/actual")" != "$id" ]; then mv "$d/actual" "$d/anterior"; fi;
+    echo "$(date +%s) $id" > "$d/actual"
+  # «últim batec de l'encesa anterior» «la seva encesa» «última encesa aturada bé» «segons des que s'ha encès» «aquesta encesa»
+  solell_llum_estat: >-
+    d=/config/.solell_llum;
+    echo "$(cat "$d/anterior" 2>/dev/null || echo '0 -') $(cat "$d/neta" 2>/dev/null || echo -) $(cut -d' ' -f1 /proc/uptime) $(cat /proc/sys/kernel/random/boot_id)"
+  solell_llum_neta: >-
+    d=/config/.solell_llum; mkdir -p "$d"; cat /proc/sys/kernel/random/boot_id > "$d/neta"
+
+input_text:
+  solell_llum_aparells_de_prova:
+    name: "Solell llum: aparells de prova"
+    icon: mdi:power-plug-outline
+    max: 255
+
+input_datetime:
+  solell_llum_tensio_inici:
+    name: "Solell llum: inici de la tensió fora de marge"
+    has_date: true
+    has_time: true
+
+input_number:
+  solell_llum_tensio_minima:
+    name: "Solell llum: tensió mínima de l'episodi"
+    min: 0
+    max: 400
+    step: 0.1
+    mode: box
+    unit_of_measurement: V
+  solell_llum_tensio_maxima:
+    name: "Solell llum: tensió màxima de l'episodi"
+    min: 0
+    max: 400
+    step: 0.1
+    mode: box
+    unit_of_measurement: V
+
+template:
+  - sensor:
+      # Què pot vigilar amb el que hi ha connectat. Va a cada avís, i l'app ho ensenya.
+      - name: "Solell llum vigila"
+        unique_id: solell_llum_vigila
+        icon: mdi:flash-alert-outline
+        state: >-
+          {{ (this.attributes.get('tensio', []) | count) + (this.attributes.get('sentinelles', []) | count)
+             + (this.attributes.get('alarma', []) | count) + (this.attributes.get('sai', []) | count) }}
+        attributes:
+          tensio: >-
+            {% set ns = namespace(n=[]) %}
+            {% for s in states.sensor if s.attributes.get('device_class') == 'voltage'
+                 and s.attributes.get('unit_of_measurement') == 'V' and 150 < (s.state | float(0)) < 300 %}
+              {% set ns.n = ns.n + [s.name] %}
+            {% endfor %}
+            {{ ns.n }}
+          sentinelles: >-
+            {% set ns = namespace(n=[]) %}
+            {% for i in states('input_text.solell_llum_aparells_de_prova').split(',') | map('trim') | list
+                 if i | regex_match('^[a-z_]+\\.[a-z0-9_]+$') %}
+              {% set ns.n = ns.n + [state_attr(i, 'friendly_name') or i] %}
+            {% endfor %}
+            {{ ns.n }}
+          alarma: >-
+            {% set ns = namespace(n=[]) %}
+            {% for e in integration_entities('sia') if e.startswith('binary_sensor.') and state_attr(e, 'device_class') == 'power' %}
+              {% set ns.n = ns.n + [state_attr(e, 'friendly_name') or e] %}
+            {% endfor %}
+            {{ ns.n }}
+          sai: >-
+            {% set ns = namespace(n=[]) %}
+            {% for e in integration_entities('nut') if e.startswith('sensor.') and e.endswith('_status_data') %}
+              {% set ns.n = ns.n + [state_attr(e, 'friendly_name') or e] %}
+            {% endfor %}
+            {{ ns.n }}
+
+  - binary_sensor:
+      # La tensió més baixa i la més alta de tots els sensors de tensió.
+      - name: "Solell llum tensió fora de marge"
+        unique_id: solell_llum_tensio_fora
+        device_class: problem
+        delay_off: "00:00:15"
+        availability: >-
+          {% set ns = namespace(n=0) %}
+          {% for s in states.sensor if s.attributes.get('device_class') == 'voltage'
+               and s.attributes.get('unit_of_measurement') == 'V' and 150 < (s.state | float(0)) < 300 %}
+            {% set ns.n = ns.n + 1 %}
+          {% endfor %}
+          {{ ns.n > 0 }}
+        state: >-
+          {% set ns = namespace(v=[]) %}
+          {% for s in states.sensor if s.attributes.get('device_class') == 'voltage'
+               and s.attributes.get('unit_of_measurement') == 'V' and 150 < (s.state | float(0)) < 300 %}
+            {% set ns.v = ns.v + [s.state | float(0)] %}
+          {% endfor %}
+          {{ ns.v | count > 0 and ((ns.v | min) < 207 or (ns.v | max) > 253) }}
+        attributes:
+          minima: >-
+            {% set ns = namespace(v=[]) %}
+            {% for s in states.sensor if s.attributes.get('device_class') == 'voltage'
+                 and s.attributes.get('unit_of_measurement') == 'V' and 150 < (s.state | float(0)) < 300 %}
+              {% set ns.v = ns.v + [s.state | float(0)] %}
+            {% endfor %}
+            {{ (ns.v | min) if ns.v else none }}
+          maxima: >-
+            {% set ns = namespace(v=[]) %}
+            {% for s in states.sensor if s.attributes.get('device_class') == 'voltage'
+                 and s.attributes.get('unit_of_measurement') == 'V' and 150 < (s.state | float(0)) < 300 %}
+              {% set ns.v = ns.v + [s.state | float(0)] %}
+            {% endfor %}
+            {{ (ns.v | max) if ns.v else none }}
+
+      # Algun aparell de prova «no disponible»: potser ha saltat el seu circuit.
+      - name: "Solell llum aparells sense corrent"
+        unique_id: solell_llum_aparells
+        device_class: problem
+        delay_on: "00:01:30"
+        delay_off: "00:00:30"
+        state: >-
+          {% set ns = namespace(n=0) %}
+          {% for i in states('input_text.solell_llum_aparells_de_prova').split(',') | map('trim') | list
+               if i | regex_match('^[a-z_]+\\.[a-z0-9_]+$') and is_state(i, 'unavailable') %}
+            {% set ns.n = ns.n + 1 %}
+          {% endfor %}
+          {{ ns.n > 0 }}
+        attributes:
+          aparells: >-
+            {% set ns = namespace(n=[]) %}
+            {% for i in states('input_text.solell_llum_aparells_de_prova').split(',') | map('trim') | list
+                 if i | regex_match('^[a-z_]+\\.[a-z0-9_]+$') and is_state(i, 'unavailable') %}
+              {% set ns.n = ns.n + [state_attr(i, 'friendly_name') or i] %}
+            {% endfor %}
+            {{ ns.n }}
+
+      # L'alarma (SIA: «Power» apagat) o el SAI (NUT: «OB», amb bateria) diuen que no hi ha corrent.
+      - name: "Solell llum xarxa caiguda"
+        unique_id: solell_llum_xarxa
+        device_class: problem
+        delay_on: "00:00:20"
+        state: >-
+          {% set ns = namespace(a=false) %}
+          {% for e in integration_entities('sia') if e.startswith('binary_sensor.')
+               and state_attr(e, 'device_class') == 'power' and is_state(e, 'off') %}
+            {% set ns.a = true %}
+          {% endfor %}
+          {% for e in integration_entities('nut') if e.startswith('sensor.') and e.endswith('_status_data')
+               and 'OB' in states(e).split() %}
+            {% set ns.a = true %}
+          {% endfor %}
+          {{ ns.a }}
+        attributes:
+          font: >-
+            {% set ns = namespace(f='alarma') %}
+            {% for e in integration_entities('nut') if e.startswith('sensor.') and e.endswith('_status_data')
+                 and 'OB' in states(e).split() %}
+              {% set ns.f = 'sai' %}
+            {% endfor %}
+            {{ ns.f }}
+
+script:
+  # Envia un avís a l'script de Google. Si no hi arriba (no hi ha internet),
+  # ho torna a provar cada minut durant mitja hora.
+  solell_llum_envia:
+    alias: "Solell llum: envia un avís al Drive"
+    icon: mdi:cloud-upload-outline
+    mode: queued
+    max: 30
+    fields:
+      missatge:
+        description: "L'avís, com a diccionari amb la clau «tipus»"
+    sequence:
+      - variables:
+          complet: >-
+            {{ dict(missatge, vigila={
+                 'tensio': state_attr('sensor.solell_llum_vigila', 'tensio') or [],
+                 'sentinelles': state_attr('sensor.solell_llum_vigila', 'sentinelles') or [],
+                 'alarma': state_attr('sensor.solell_llum_vigila', 'alarma') or [],
+                 'sai': state_attr('sensor.solell_llum_vigila', 'sai') or [],
+                 'ha': state_attr('update.home_assistant_core_update', 'installed_version') or ''})
+               if missatge is mapping else missatge }}
+      - repeat:
+          sequence:
+            - variables:
+                r: null
+            - service: rest_command.solell_llum
+              continue_on_error: true
+              response_variable: r
+              data:
+                missatge: "{{ complet }}"
+            - if:
+                - condition: template
+                  value_template: "{{ r is mapping and r.get('content') is mapping and r.content.get('ok') == true }}"
+              then:
+                - stop: "Enviat"
+            - if:
+                - condition: template
+                  value_template: "{{ r is mapping and r.get('content') is mapping and r.content.get('error') == 'clau' }}"
+              then:
+                - stop: "L'script de Google no accepta la clau: revisa solell_llum_url al secrets.yaml"
+                  error: true
+            - delay: "00:01:00"
+          until:
+            - condition: template
+              value_template: "{{ repeat.index >= 30 }}"
+
+automation:
+  # En arrencar: si la màquina s'ha tornat a encendre sense haver-se aturat bé,
+  # ha estat un tall. Ho envia quan hi ha internet; ho prova durant quatre hores.
+  - id: solell_llum_arrencada
+    alias: "Solell llum: en arrencar, mira si hi ha hagut un tall"
+    mode: single
+    trigger:
+      - platform: homeassistant
+        event: start
+    action:
+      - service: shell_command.solell_llum_batec
+      - delay: "00:00:30"
+      - repeat:
+          sequence:
+            - service: shell_command.solell_llum_estat
+              response_variable: e
+            - variables:
+                p: "{{ (e.get('stdout') or '').split() }}"
+                r: null
+            - service: rest_command.solell_llum
+              continue_on_error: true
+              response_variable: r
+              data:
+                missatge: >-
+                  {{ {'tipus': 'arrencada',
+                      'ant': (p[0] | int(0)) if p | count >= 5 else 0,
+                      'boot_ant': p[1] if p | count >= 5 else '-',
+                      'neta': (p | count >= 5) and p[1] != '-' and p[2] == p[1],
+                      'uptime': (p[3] | float(0)) if p | count >= 5 else 0,
+                      'vigila': {
+                        'tensio': state_attr('sensor.solell_llum_vigila', 'tensio') or [],
+                        'sentinelles': state_attr('sensor.solell_llum_vigila', 'sentinelles') or [],
+                        'alarma': state_attr('sensor.solell_llum_vigila', 'alarma') or [],
+                        'sai': state_attr('sensor.solell_llum_vigila', 'sai') or [],
+                        'ha': state_attr('update.home_assistant_core_update', 'installed_version') or ''}} }}
+            - if:
+                - condition: template
+                  value_template: "{{ r is mapping and r.get('content') is mapping and r.content.get('ok') == true }}"
+              then:
+                - stop: "Enviat"
+            - if:
+                - condition: template
+                  value_template: "{{ r is mapping and r.get('content') is mapping and r.content.get('error') == 'clau' }}"
+              then:
+                - stop: "L'script de Google no accepta la clau: revisa solell_llum_url al secrets.yaml"
+                  error: true
+            - delay: "00:01:00"
+          until:
+            - condition: template
+              value_template: "{{ repeat.index >= 240 }}"
+
+  # Quan s'atura bé (un reinici, una actualització), ho apunta: així, en tornar,
+  # no ho pren per un tall.
+  - id: solell_llum_aturada
+    alias: "Solell llum: apunta que s'atura bé"
+    mode: single
+    trigger:
+      - platform: homeassistant
+        event: shutdown
+    action:
+      - service: shell_command.solell_llum_neta
+
+  # Cada mitja hora diu que és viu. Si l'app veu que fa estona que no en diu res,
+  # potser no hi ha llum (o internet) a casa.
+  - id: solell_llum_contacte
+    alias: "Solell llum: diu que és viu"
+    mode: single
+    trigger:
+      - platform: time_pattern
+        minutes: "/30"
+    action:
+      - service: script.turn_on
+        target:
+          entity_id: script.solell_llum_envia
+        data:
+          variables:
+            missatge:
+              tipus: batec
+
+  - id: solell_llum_tensio_inici
+    alias: "Solell llum: la tensió surt de marge"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.solell_llum_tensio_fora_de_marge
+        to: "on"
+    action:
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.solell_llum_tensio_inici
+        data:
+          timestamp: "{{ as_timestamp(now()) }}"
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.solell_llum_tensio_minima
+        data:
+          value: "{{ state_attr('binary_sensor.solell_llum_tensio_fora_de_marge', 'minima') | float(230) }}"
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.solell_llum_tensio_maxima
+        data:
+          value: "{{ state_attr('binary_sensor.solell_llum_tensio_fora_de_marge', 'maxima') | float(230) }}"
+
+  - id: solell_llum_tensio_seguiment
+    alias: "Solell llum: segueix la tensió mentre és fora de marge"
+    mode: queued
+    max: 20
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.solell_llum_tensio_fora_de_marge
+        attribute: minima
+      - platform: state
+        entity_id: binary_sensor.solell_llum_tensio_fora_de_marge
+        attribute: maxima
+    condition:
+      - condition: state
+        entity_id: binary_sensor.solell_llum_tensio_fora_de_marge
+        state: "on"
+    action:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.solell_llum_tensio_minima
+        data:
+          value: >-
+            {{ [states('input_number.solell_llum_tensio_minima') | float(230),
+                state_attr('binary_sensor.solell_llum_tensio_fora_de_marge', 'minima') | float(230)] | min }}
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.solell_llum_tensio_maxima
+        data:
+          value: >-
+            {{ [states('input_number.solell_llum_tensio_maxima') | float(230),
+                state_attr('binary_sensor.solell_llum_tensio_fora_de_marge', 'maxima') | float(230)] | max }}
+
+  - id: solell_llum_tensio_fi
+    alias: "Solell llum: la tensió torna al seu lloc"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.solell_llum_tensio_fora_de_marge
+        from: "on"
+    action:
+      - service: script.turn_on
+        target:
+          entity_id: script.solell_llum_envia
+        data:
+          variables:
+            missatge:
+              tipus: tensio
+              inici: "{{ state_attr('input_datetime.solell_llum_tensio_inici', 'timestamp') | int(0) }}"
+              fi: "{{ as_timestamp(now()) | int }}"
+              minima: "{{ states('input_number.solell_llum_tensio_minima') | float(0) }}"
+              maxima: "{{ states('input_number.solell_llum_tensio_maxima') | float(0) }}"
+              fonts: "{{ state_attr('sensor.solell_llum_vigila', 'tensio') or [] }}"
+
+  - id: solell_llum_aparells
+    alias: "Solell llum: aparells de prova sense corrent"
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.solell_llum_aparells_sense_corrent
+        from: "off"
+        to: "on"
+        id: inici
+      - platform: state
+        entity_id: binary_sensor.solell_llum_aparells_sense_corrent
+        from: "on"
+        to: "off"
+        id: fi
+    action:
+      - service: script.turn_on
+        target:
+          entity_id: script.solell_llum_envia
+        data:
+          variables:
+            missatge:
+              tipus: circuit
+              estat: "{{ trigger.id }}"
+              hora: "{{ as_timestamp(now()) | int }}"
+              aparells: "{{ trigger.from_state.attributes.get('aparells', []) if trigger.id == 'fi' else trigger.to_state.attributes.get('aparells', []) }}"
+
+  - id: solell_llum_xarxa
+    alias: "Solell llum: l'alarma o el SAI diuen que no hi ha corrent"
+    mode: queued
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.solell_llum_xarxa_caiguda
+        from: "off"
+        to: "on"
+        id: inici
+      - platform: state
+        entity_id: binary_sensor.solell_llum_xarxa_caiguda
+        from: "on"
+        to: "off"
+        id: fi
+    action:
+      - service: script.turn_on
+        target:
+          entity_id: script.solell_llum_envia
+        data:
+          variables:
+            missatge:
+              tipus: xarxa
+              estat: "{{ trigger.id }}"
+              font: "{{ trigger.from_state.attributes.get('font', 'alarma') if trigger.id == 'fi' else trigger.to_state.attributes.get('font', 'alarma') }}"
+              hora: "{{ as_timestamp(now()) | int }}"

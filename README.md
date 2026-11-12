@@ -12,9 +12,10 @@ paga cada mes i com canvia d'un any a l'altre.
 | `index.html` | el menú: troba sol les pàgines noves del repositori |
 | `mati.html` | el resum de cada matí |
 | `factures.html` | les factures de casa |
+| `llum.html` | quan marxa la llum i quan torna, la tensió i els aparells sense corrent |
 
 Cada app és un sol fitxer, sense cap pas de compilació. El menú no demana
-entrar-hi; les altres dues sí.
+entrar-hi; les altres sí.
 
 ## Com funciona
 
@@ -63,6 +64,67 @@ l'enganxa tal qual: n'extreu el bloc `.shell`, el torna a muntar etiqueta per
 etiqueta amb una llista del que hi pot haver i descarta la resta, de manera que
 ni un `<script>` ni un `onclick` ni un enllaç que no sigui `https:` o `mailto:`
 hi poden entrar.
+
+## Llum
+
+`llum.html` és l'historial de la llum de casa: cada tall amb l'hora en què ha
+marxat i la de quan ha tornat, les vegades que la tensió ha sortit de 207-253 V
+i els aparells que s'han quedat sense corrent. També diu si ara hi ha llum. Si
+el Home Assistant fa més de tres quarts que no diu res, avisa que potser no n'hi
+ha.
+
+Ho apunta el Home Assistant i ho passa al Drive un script de Google, perquè des
+de fora de casa el Home Assistant no es veu:
+
+```
+Home Assistant  →  script de Google (llum/apps-script.gs)  →  solell-llum.json al Drive  →  llum.html
+```
+
+Com sap cada cosa:
+
+- **Talls.** El Home Assistant s'apaga amb la llum. Cada 30 segons escriu l'hora
+  en un fitxer. Quan torna a arrencar, mira si la vegada anterior es va aturar
+  bé. Si no s'hi va aturar, envia l'últim batec i quanta estona fa que la
+  màquina és encesa. L'script de Google calcula amb el seu rellotge quan ha
+  tornat la llum, perquè després d'un tall el rellotge de casa pot anar
+  malament fins que torna internet. L'inici és aproximat: és l'últim batec, fins
+  a mig minut abans del tall.
+- **Talls amb el Home Assistant encès.** Si l'alarma Ajax és connectada per SIA,
+  o hi ha un SAI amb NUT, fa cas del que diuen.
+- **Tensió.** Fa servir tots els sensors de tensió que troba al Home Assistant,
+  com els endolls Shelly o Tuya amb mesura o un mesurador al quadre. Si no n'hi
+  ha cap, aquesta part no fa res. Una baixada més curta que l'interval amb què
+  mesura l'endoll no es veu.
+- **Aparells sense corrent.** Al camp «Solell llum: aparells de prova» del Home
+  Assistant s'hi posen, separats per comes, els `entity_id` d'un endoll o llum
+  de cada circuit. Si un passa més d'un minut i mig sense respondre mentre la
+  resta funciona, és probable que hagi saltat aquell circuit.
+
+Un IGA o un ICP que salta (el general) no es distingeix d'un tall de la
+companyia: en tots dos casos la casa es queda a fosques.
+
+### Posar-ho en marxa
+
+1. **L'app**: obre `llum.html` una vegada amb roninsilent@gmail.com. Crea el
+   `solell-llum.json` buit; sense aquest fitxer, l'script no té on escriure.
+2. **L'script de Google**: a script.google.com, amb el mateix compte, crea un
+   projecte i enganxa-hi `llum/apps-script.gs`. Executa `prepara`: et demanarà
+   permís per al Drive i et donarà la clau al registre. Després ves a
+   *Implementa → Implementació nova → Aplicació web*. A *Executa com a* tria
+   *jo*, i a *Qui hi té accés* tria *qualsevol usuari*. Copia l'URL que acaba en
+   `/exec`.
+3. **El Home Assistant**:
+   - Copia `llum/home-assistant.yaml` a `/config/packages/solell_llum.yaml`.
+   - Si `configuration.yaml` encara no carrega paquets, afegeix-hi
+     `homeassistant: packages: !include_dir_named packages`.
+   - Al `secrets.yaml`, posa
+     `solell_llum_url: "URL_QUE_ACABA_EN_/exec?clau=LA_CLAU"`.
+   - Reinicia el Home Assistant. En arrencar ja diu què pot vigilar, i l'app ho
+     ensenya a «Què vigila».
+
+L'URL amb la clau és l'única porta: sense la clau, l'script no escriu res.
+L'script en guarda una còpia sencera a `solell-llum-mestre.json` i l'aboca a
+totes les còpies de `solell-llum.json`, que són les que veu l'app.
 
 ## El vestit
 
