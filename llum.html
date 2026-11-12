@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Llum</title>
+<meta name="description" content="Quan marxa la llum i quan torna, les baixades de tensió i els aparells que es queden sense corrent, apuntats pel Home Assistant">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Solell">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1B2831">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<link rel="apple-touch-icon" href="icona.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-8 -11.75 116 116'%3E%3Crect x='-8' y='-11.75' width='116' height='116' rx='24' fill='%231B2831'/%3E%3Cg fill='none' stroke-width='5.5'%3E%3Cpath stroke='%232864A2' d='M69.2 2H2.4V13.6H26.5V90.5H11.8V49.98M36.8 2V28.85M36.8 63.77V92.5M1.3 58.85L50 17.7L98.7 58.85M88.2 49.98V63.2'/%3E%3Cpath stroke='%23A1623A' d='M97.35 26.23A36.3 37.7 0 1 0 97.35 79.17L89.77 70.13A24.7 25.9 0 1 1 89.77 35.27Z'/%3E%3Cpath stroke='%232864A2' d='M36 29.53L50 17.7L57.77 24.26'/%3E%3C/g%3E%3C/svg%3E">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<style>
+:root{
+  --paper:#1B2831; --surface:#21303B; --ink:#F3F5F7; --ink-soft:#A7B3BD; --ink-dim:#7A8A96;
+  --line:#2D3D49; --line-strong:#3B4D5A; --alert:#F0796B; --good:#8FC48A; --hub:#273846;
+  --r:4px;
+  /* el coure i el blau del logo; els -clar són per a text i icones sobre el fons fosc */
+  --coure:#A1623A; --coure-clar:#D49166; --coure-soft:rgba(212,145,102,.15);
+  --blau:#2864A2; --blau-clar:#78A9E0; --blau-soft:rgba(120,169,224,.15);
+  --display:"Montserrat", "Avenir Next", "Segoe UI", sans-serif;
+  --sans:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* sèries: el coure i el blau de la casa, un gerd per al telèfon i un verd per
+     als excedents. Comprovades per a daltonisme sobre el fons de les targetes */
+  --c-llum:#CB7D34; --c-aigua:#588CDA; --c-tel:#BF5C8F; --c-exc:#3AA273;
+  --hl:rgba(243,245,247,.07);
+  color-scheme:dark;
+}
+@font-face{font-family:"Montserrat";font-weight:400;font-style:normal;font-display:swap;
+  src:url("montserrat-400.woff2") format("woff2")}
+@font-face{font-family:"Montserrat";font-weight:600;font-style:normal;font-display:swap;
+  src:url("montserrat-600.woff2") format("woff2")}
+
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--sans);
+  font-size:15px; line-height:1.5; -webkit-font-smoothing:antialiased;
+}
+[hidden]{display:none!important}
+.wrap{max-width:880px;margin:0 auto;padding:0 20px 90px}
+button{font:inherit;color:inherit}
+a{color:inherit}
+
+header{padding:34px 0 18px}
+.brandbar{display:flex;align-items:center;gap:11px;margin-bottom:20px}
+.marca{width:52px;height:48px;flex:none;display:block;margin:-5px 0}
+.brandname{font-family:var(--display);font-size:15px;font-weight:400;letter-spacing:.34em;color:var(--ink)}
+.altra{margin-left:auto;flex:none;text-decoration:none;color:var(--ink-soft);
+  border:1px solid var(--line-strong);border-radius:999px;padding:5px 13px;
+  font-size:12.5px;font-weight:700;white-space:nowrap}
+.altra:hover{color:var(--coure-clar);border-color:var(--coure-clar)}
+h1{font-family:var(--display);font-weight:600;font-size:clamp(26px,5.4vw,34px);
+  letter-spacing:-.01em;line-height:1.25;margin:0;max-width:16ch;text-wrap:balance}
+.sub{color:var(--ink-soft);font-size:14px;margin:9px 0 0}
+.acctbar{display:flex;align-items:center;gap:8px;margin-top:12px}
+/* el correu empenyia el botó de tancar sessió fora de la pantalla al mòbil. Que
+   s'escurci ell, que és el prescindible: els botons es queden on són. */
+.acctbar .note{min-width:0;flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acctbar img{width:22px;height:22px;border-radius:50%;flex:none}
+.acctbar .btn{padding:4px 10px;font-size:12px;flex:none;white-space:nowrap}
+.spacer{flex:1}
+
+nav button:focus-visible,.btn:focus-visible,input:focus-visible,.chips button:focus-visible,a:focus-visible,.pickbtn:focus-visible{outline:2px solid var(--coure-clar);outline-offset:2px}
+
+section{padding-top:24px}
+h2{font-family:var(--display);font-size:19px;font-weight:600;letter-spacing:-.005em;margin:36px 0 6px}
+section > h2:first-child{margin-top:0}
+.hint{color:var(--ink-soft);font-size:13px;margin:0 0 14px;max-width:64ch}
+.note{font-size:13px;color:var(--ink-soft);margin:0}
+
+input[type=search]{background:var(--surface);border:1px solid var(--line-strong);color:var(--ink);
+  padding:9px 12px;border-radius:10px;font:inherit;width:100%;margin-bottom:12px}
+.btn{background:var(--surface);border:1px solid var(--line-strong);border-radius:10px;padding:8px 14px;cursor:pointer;font-weight:600}
+.btn:hover{border-color:var(--coure-clar);color:var(--coure-clar)}
+.btn.primary{background:var(--coure);color:#fff;border-color:var(--coure);font-weight:700}
+.btn.primary:hover{background:#B16D42;border-color:#B16D42;color:#fff}
+
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line-strong);border-radius:20px;padding:5px 12px;font-size:12.5px;font-weight:500;cursor:pointer;white-space:nowrap}
+.chips button[aria-pressed="true"]{background:var(--coure);color:#fff;border-color:var(--coure);font-weight:700}
+
+.card{border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:16px;background:var(--surface)}
+.card h3{margin:0 0 2px;font-size:15px;font-weight:600;letter-spacing:0}
+
+.statrow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 0 8px}
+.statrow.tres{grid-template-columns:repeat(3,1fr)}
+.stat{border:1px solid var(--line);border-radius:var(--r);padding:13px 14px;background:var(--surface);min-width:0}
+.stat span{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-soft);line-height:1.25;font-weight:600}
+.stat b{display:block;font-family:var(--display);font-size:23px;font-weight:600;margin:5px 0 2px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.stat small{display:block;font-size:12px;color:var(--ink-soft);line-height:1.35}
+@media(max-width:560px){.statrow{grid-template-columns:1fr 1fr} .stat b{font-size:19px}}
+@media(max-width:340px){.statrow.tres{grid-template-columns:1fr 1fr}}
+.sw{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none}
+
+.mes,.stat small.mes{color:var(--alert)} .menys,.stat small.menys{color:var(--good)} .muted{color:var(--ink-soft)}
+
+
+/* llistes de factures */
+.frow{display:flex;gap:11px;align-items:center;padding:11px 2px;border-top:1px solid var(--line)}
+.frow:last-child{border-bottom:1px solid var(--line)}
+.frow .sw{width:9px;height:9px}
+.fmain{flex:1;min-width:0}
+.fmain .n{font-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fmain small{display:block;font-size:12px;color:var(--ink-soft)}
+.fval{text-align:right;flex:none}
+.fval b{display:block;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
+.fval b.anul{text-decoration:line-through;color:var(--ink-soft);font-weight:500}
+.fval a,.fval small{display:block;font-size:12px;color:var(--ink-soft)}
+.fval a{text-decoration:none;font-weight:600;color:var(--ink)}
+.fval a:hover{text-decoration:underline}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:1px 8px;border-radius:999px;border:1px solid var(--line-strong);color:var(--ink-soft);margin-left:6px;vertical-align:1px}
+
+.empty-state{text-align:center;padding:40px 22px;color:var(--ink-soft);font-size:14px;display:flex;flex-direction:column;gap:7px;border:1px dashed var(--line-strong);border-radius:var(--r)}
+.empty-state b{color:var(--ink);font-size:15px}
+.resum{margin:0 0 16px;max-width:68ch}
+.resum p{margin:0 0 8px;font-size:16px;line-height:1.55}
+.resum b{font-weight:700}
+ul.mini{margin:0;padding-left:18px;font-size:14px;max-width:68ch}
+ul.mini li{margin:6px 0;line-height:1.45}
+.foot{margin-top:34px;font-size:12px;color:var(--ink-soft);line-height:1.5}
+.foot a{color:var(--ink-soft)}
+
+.gate{position:fixed;inset:0;background:var(--paper);z-index:60;display:flex;align-items:center;justify-content:center;padding:24px}
+.gate-card{max-width:360px;width:100%;text-align:center}
+.gate-card .marca{width:92px;height:86px;margin:0 auto 22px}
+.gate-card h2{font-family:var(--display);font-size:24px;font-weight:600;letter-spacing:0;margin:0 0 10px}
+.gate-card p{color:var(--ink-soft);font-size:14px;line-height:1.5;margin:0 0 20px}
+.gate-card input{margin-bottom:10px;background:var(--surface);border:1px solid var(--line-strong);color:var(--ink);padding:10px 12px;border-radius:10px;font:inherit;width:100%}
+.gate-card .btn{width:100%;padding:11px;font-size:14.5px}
+.gate-link{margin-top:16px;font-size:12.5px;color:var(--ink-soft);text-decoration:underline;background:none;border:0;cursor:pointer;padding:4px}
+.gate-status{margin-top:12px;font-size:12.5px;color:var(--ink-soft)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:40;background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-size:13.5px;font-weight:600}
+
+/* ---------- llum: l'estat d'ara, les xifres, l'historial i què vigila ---------- */
+.icon-box{width:38px;height:38px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;flex:none;background:var(--coure-soft)}
+.ic{display:block;flex:none;width:19px;height:19px;background-color:var(--coure-clar);
+  -webkit-mask:var(--m) center / contain no-repeat;mask:var(--m) center / contain no-repeat}
+.i-llamp{--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13.2 2.8 5.6 13.4h5.6l-1 7.8 7.6-10.6h-5.6l1-7.8z'/%3E%3C/svg%3E")}
+.i-ona{--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 12c1.6-5 3.2-5 4.75 0s3.15 5 4.75 0 3.2-5 4.75 0 3.15 5 4.75 0'/%3E%3C/svg%3E")}
+.i-endoll{--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 3.5v4.5M15 3.5v4.5'/%3E%3Cpath d='M6.5 8h11v3.2a5.5 5.5 0 0 1-11 0z'/%3E%3Cpath d='M12 16.7v3.8'/%3E%3C/svg%3E")}
+.i-ok{--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='m8.3 12.3 2.4 2.4 5-5'/%3E%3C/svg%3E")}
+.i-silenci{--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 7.6v5.4'/%3E%3Cpath d='M12 16.4v.1'/%3E%3C/svg%3E")}
+.ara{display:flex;gap:16px;align-items:flex-start;border:1px solid var(--line-strong);border-top:3px solid var(--good);
+  border-radius:var(--r);background:var(--hub);padding:20px 22px;margin:28px 0 0}
+.ara .icon-box{width:46px;height:46px;background:rgba(143,196,138,.14)}
+.ara .ic{width:23px;height:23px;background-color:var(--good)}
+.ara.avis{border-top-color:var(--coure)} .ara.avis .icon-box{background:var(--coure-soft)} .ara.avis .ic{background-color:var(--coure-clar)}
+.ara.alerta{border-top-color:var(--alert)} .ara.alerta .icon-box{background:rgba(240,121,107,.15)} .ara.alerta .ic{background-color:var(--alert)}
+.ara b{display:block;font-family:var(--display);font-size:clamp(20px,3.6vw,26px);font-weight:600;letter-spacing:-.015em;line-height:1.2;text-wrap:balance}
+.ara p{margin:7px 0 0;color:var(--ink-soft);font-size:14px;line-height:1.5;max-width:62ch}
+
+.mesllum{font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);margin:22px 0 4px}
+.mesllum:first-child{margin-top:4px}
+.ev{display:flex;gap:12px;align-items:center;padding:11px 2px;border-top:1px solid var(--line)}
+.ev:last-child{border-bottom:1px solid var(--line)}
+.ev .icon-box{width:34px;height:34px}
+.ev .ic{width:17px;height:17px}
+.ev.t-tensio .icon-box{background:var(--blau-soft)} .ev.t-tensio .ic{background-color:var(--blau-clar)}
+.ev.t-circuit .icon-box{background:rgba(191,92,143,.16)} .ev.t-circuit .ic{background-color:#D98AB3}
+.evmain{flex:1;min-width:0}
+.evmain .n{font-weight:600;font-size:14.5px;overflow-wrap:anywhere}
+.evmain small{display:block;font-size:12.5px;color:var(--ink-soft);line-height:1.4}
+.evval{text-align:right;flex:none;max-width:42%}
+.evval b{display:block;font-family:var(--display);font-size:16px;font-weight:600;color:var(--coure-clar);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ev.t-tensio .evval b{color:var(--blau-clar)}
+.evval small{display:block;font-size:11.5px;color:var(--ink-soft)}
+.ev.obert .evval b{color:var(--alert)}
+#mes{margin-top:14px}
+
+.vig{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.vig .card{margin:0;padding:14px 16px}
+.vig .card h3{font-size:12.5px;color:var(--ink-soft);font-weight:700;margin:0 0 5px}
+.vig .card p{margin:0;font-size:14px;line-height:1.45;overflow-wrap:anywhere}
+.vig .card.no{border-left-color:var(--line-strong)}
+.vig .card.no p{color:var(--ink-dim)}
+@media(max-width:560px){.vig{grid-template-columns:1fr} .ara{padding:16px 16px;gap:13px}}
+.empty-state a{color:var(--coure-clar)}
+
+/* ---------- els efectes del mediakit de Zenkai3D, amb el coure i el blau de casa ----------
+   Cantonades rectes, el titular gran i atapeït amb la part que importa en color, els
+   títols de secció petits i en majúscules amb una ratlla fins al marge, les xifres en
+   color i una vora de color a les targetes. Les píndoles (Menú, xips, pestanyes al
+   mòbil) es queden rodones, com al mediakit. */
+.btn,input[type=search],.gate-card input{border-radius:var(--r)}
+h1{font-size:clamp(30px,6.2vw,46px);line-height:1.08;letter-spacing:-.025em;max-width:15ch}
+h1 em{font-style:normal;color:var(--coure-clar)}
+.sub{font-size:clamp(14.5px,2.1vw,16.5px);margin-top:14px}
+section h2{display:flex;align-items:center;gap:10px;font-family:var(--sans);font-size:12px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin:44px 0 12px}
+section h2::after{content:"";flex:1;height:1px;background:var(--line)}
+.stat b{color:var(--coure-clar);font-size:clamp(21px,3.4vw,28px);letter-spacing:-.015em}
+.card{border-left:3px solid var(--blau)}
+@media(max-width:560px){.stat b{font-size:21px}}
+.statrow > .stat:first-child{border-top:3px solid var(--coure)}
+
+/* ---------- més efectes: el que es mou en entrar ----------
+   Tot dura menys d'un segon i només passa en obrir la pàgina o canviar de vista.
+   Amb «reduir el moviment» activat al sistema, no es mou res. */
+@keyframes entra{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes apareix{from{opacity:0}to{opacity:1}}
+@keyframes ratlla{from{transform:scaleX(0)}to{transform:none}}
+@keyframes obre{from{opacity:0;letter-spacing:.7em}to{opacity:1;letter-spacing:.34em}}
+/* el traç es fa amb guions de la llargada del camí; al final es treuen, que la
+   unió de l'últim tram quedi neta */
+@keyframes traca{0%{stroke-dasharray:1 1;stroke-dashoffset:1}99%{stroke-dasharray:1 1;stroke-dashoffset:0}100%{stroke-dasharray:none;stroke-dashoffset:0}}
+/* una llum de coure i una de blau, molt fluixes, darrere la capçalera */
+body{background:radial-gradient(900px 420px at 8% -140px,rgba(161,98,58,.14),transparent 70%) no-repeat,
+  radial-gradient(820px 400px at 96% -160px,rgba(40,100,162,.18),transparent 70%) no-repeat,var(--paper)}
+/* la marca es dibuixa sola: la T i la casa, després la C, i al final el tros de
+   teulada que passa per sobre de la C */
+.marca path{animation:traca 1.1s cubic-bezier(.65,0,.35,1) .1s both}
+.marca path+path{animation-duration:.9s;animation-delay:.55s}
+.marca path+path+path{animation-duration:.25s;animation-delay:1.4s}
+.brandname{animation:obre 1.1s cubic-bezier(.2,.7,.2,1) .35s both}
+.gate{background:inherit}
+header h1{animation:entra .6s cubic-bezier(.2,.7,.2,1) .15s both}
+header .sub{animation:entra .6s cubic-bezier(.2,.7,.2,1) .25s both}
+/* l'estat, les xifres i l'historial entren de baix a dalt, una peça darrere l'altra */
+.ara{animation:entra .55s cubic-bezier(.2,.7,.2,1) .3s both}
+section > *{animation:entra .5s cubic-bezier(.2,.7,.2,1) both}
+section > *:nth-child(2){animation-delay:0.05s}
+section > *:nth-child(3){animation-delay:0.10s}
+section > *:nth-child(4){animation-delay:0.15s}
+section > *:nth-child(5){animation-delay:0.20s}
+section > *:nth-child(6){animation-delay:0.25s}
+section > *:nth-child(7){animation-delay:0.30s}
+section > *:nth-child(8){animation-delay:0.35s}
+section > *:nth-child(n+9){animation-delay:0.40s}
+.statrow > .stat{animation:entra .5s cubic-bezier(.2,.7,.2,1) both}
+.statrow > .stat:nth-child(2){animation-delay:0.07s}
+.statrow > .stat:nth-child(3){animation-delay:0.14s}
+.statrow > .stat:nth-child(4){animation-delay:0.21s}
+.statrow > .stat:nth-child(n+5){animation-delay:0.28s}
+.ev{animation:entra .45s cubic-bezier(.2,.7,.2,1) both}
+.ev:nth-child(2){animation-delay:0.03s}
+.ev:nth-child(3){animation-delay:0.06s}
+.ev:nth-child(4){animation-delay:0.09s}
+.ev:nth-child(5){animation-delay:0.12s}
+.ev:nth-child(6){animation-delay:0.15s}
+.ev:nth-child(7){animation-delay:0.18s}
+.ev:nth-child(8){animation-delay:0.21s}
+.ev:nth-child(9){animation-delay:0.24s}
+.ev:nth-child(10){animation-delay:0.27s}
+.ev:nth-child(11){animation-delay:0.30s}
+.ev:nth-child(12){animation-delay:0.33s}
+.ev:nth-child(n+13){animation-delay:.36s}
+section h2::after{transform-origin:left;animation:ratlla .9s cubic-bezier(.2,.7,.2,1) .2s both}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+
+/* ---------- ios-zoom: que l'iPhone no ampliï la pàgina ----------
+   Safari a l'iOS amplia la pàgina quan poses el cursor en un camp de menys de
+   16 px i, en sortir-ne, no la torna a reduir: es queda gran. Amb 16 px no ho
+   fa. L'!important hi és perquè regles com .toolbar select tenen més
+   especificitat que select i guanyarien igualment. */
+@media(max-width:900px){
+  input,select,textarea{font-size:16px!important}
+}
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <svg class="marca" viewBox="-1 -1 102 94.5" aria-hidden="true" focusable="false"><g fill="none" stroke-width="4"><path pathLength="1" stroke="#2864A2" d="M69.2 2H2.4V13.6H26.5V90.5H11.8V49.98M36.8 2V28.85M36.8 63.77V92.5M1.3 58.85L50 17.7L98.7 58.85M88.2 49.98V63.2"/><path pathLength="1" stroke="#A1623A" d="M97.35 26.23A36.3 37.7 0 1 0 97.35 79.17L89.77 70.13A24.7 25.9 0 1 1 89.77 35.27Z"/><path pathLength="1" stroke="#2864A2" d="M36 29.53L50 17.7L57.77 24.26"/></g></svg>
+    <div id="gate-setup">
+      <h2>Un pas, un cop</h2>
+      <p>Enganxa el Client ID que t'ha donat Google Cloud. Només cal fer-ho una vegada i val per a totes les apps.</p>
+      <input type="text" id="gate-cid" placeholder="xxxxx.apps.googleusercontent.com">
+      <button class="btn primary" id="gate-cid-save">Desa i continua</button>
+    </div>
+    <div id="gate-login" hidden>
+      <h2>Llum</h2>
+      <p>Entra-hi amb el compte de casa i et dic quan ha marxat la llum i quan ha tornat.</p>
+      <button class="btn primary" id="gate-signin">Continua amb Google</button>
+      <button type="button" class="gate-link" id="gate-reconfig">Canvia el Client ID</button>
+      <p class="gate-status" id="gate-status"></p>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<header>
+  <div class="brandbar">
+    <svg class="marca" viewBox="-1 -1 102 94.5" aria-hidden="true" focusable="false"><g fill="none" stroke-width="4"><path pathLength="1" stroke="#2864A2" d="M69.2 2H2.4V13.6H26.5V90.5H11.8V49.98M36.8 2V28.85M36.8 63.77V92.5M1.3 58.85L50 17.7L98.7 58.85M88.2 49.98V63.2"/><path pathLength="1" stroke="#A1623A" d="M97.35 26.23A36.3 37.7 0 1 0 97.35 79.17L89.77 70.13A24.7 25.9 0 1 1 89.77 35.27Z"/><path pathLength="1" stroke="#2864A2" d="M36 29.53L50 17.7L57.77 24.26"/></g></svg>
+    <span class="brandname">Solell 19</span>
+    <a class="altra" href="index.html">Menú</a>
+  </div>
+  <h1>Quan marxa <em>la llum</em></h1>
+  <p class="sub">Els talls, les baixades de tensió i els aparells que es queden sense corrent, tal com els veu el Home Assistant.</p>
+  <div class="acctbar" id="acctbar" hidden>
+    <img id="acct-pic" alt="">
+    <span class="note" id="acct-email"></span>
+    <span class="spacer"></span>
+    <button class="btn" id="acct-reload">Torna a carregar</button>
+    <button class="btn" id="acct-signout">Tanca sessió</button>
+  </div>
+</header>
+
+<main>
+
+  <div class="empty-state" id="buit" hidden style="margin-top:28px">
+    <b>Encara no ha arribat res del Home Assistant</b>
+    <span>Quan l'script de Google i el paquet del Home Assistant estiguin posats, aquí sortirà cada tall de llum. Com es fa és a l'apartat <a href="https://github.com/roninsilent/solell#llum" target="_blank" rel="noopener">Llum</a> del README.</span>
+  </div>
+
+  <div id="full" hidden>
+    <div class="ara" id="ara" role="status"></div>
+
+    <section>
+      <h2>Els últims 12 mesos</h2>
+      <div class="statrow" id="xifres"></div>
+    </section>
+
+    <section>
+      <h2>Què ha passat</h2>
+      <div class="chips" id="filtres" role="group" aria-label="Què vols veure"></div>
+      <div id="llista"></div>
+      <button class="btn" id="mes" hidden>Mostra'n més</button>
+    </section>
+
+    <section>
+      <h2>Què vigila</h2>
+      <div class="vig" id="vig"></div>
+      <p class="foot" id="peu"></p>
+    </section>
+  </div>
+
+</main>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+
+"use strict";
+
+var $ = function (id) { return document.getElementById(id); };
+
+/* ---------- emmagatzematge local (pot fallar: navegació privada) ---------- */
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined && text !== null) e.textContent = text; return e; }
+function B(t) { return el("b", "", t); }
+function afegeix(p, parts) { parts.forEach(function (x) { p.appendChild(typeof x === "string" ? document.createTextNode(x) : x); }); return p; }
+function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+var toastT = null;
+function toast(msg) { var t = $("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(function () { t.hidden = true; }, 3800); }
+
+/* ---------- les dades ---------- */
+/* solell-llum.json l'escriu l'script de Google (llum/apps-script.gs) cada vegada
+   que el Home Assistant li diu alguna cosa. Aquesta app només el llegeix. */
+var NOM = "solell-llum.json";
+var CACHE_KEY = "solell_llum_cache_v1";
+var FILTRE_KEY = "solell_llum_filtre";
+var VISTA = null;              /* el motor de la memòria cau crida mostra(VISTA) */
+var D = null, EV = [], FILTRE = lsGet(FILTRE_KEY) || "tot", VEURE = 40;
+var darreraLectura = 0;
+var SILENCI = 45 * 60000;      /* diu que és viu cada mitja hora: tres quarts sense dir res ja és estrany */
+var TZ = "Europe/Madrid";
+
+/* Les dates, a mà: Intl diu «del 2026» i «a les 01:53», i aquí es diu «de 2026»
+   i «a la 1:53». L'hora és sempre la de casa, sigui on sigui qui ho miri. */
+var DIES = ["diumenge", "dilluns", "dimarts", "dimecres", "dijous", "divendres", "dissabte"];
+var MESOS = ["gener", "febrer", "març", "abril", "maig", "juny", "juliol", "agost", "setembre", "octubre", "novembre", "desembre"];
+var fParts = new Intl.DateTimeFormat("en-US", { timeZone: TZ, year: "numeric", month: "numeric", day: "numeric",
+  weekday: "short", hour: "numeric", minute: "2-digit", hourCycle: "h23" });
+var WD = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+var NF = new Intl.NumberFormat("ca-ES", { maximumFractionDigits: 0 });
+
+function parts(ms) {
+  var o = {};
+  fParts.formatToParts(ms).forEach(function (p) { o[p.type] = p.value; });
+  return { y: +o.year, m: +o.month - 1, d: +o.day, wd: WD[o.weekday], h: +o.hour % 24, mi: o.minute };
+}
+function t(s) { var x = Date.parse(s); return isNaN(x) ? null : x; }
+function diaDe(ms) { var p = parts(ms); return p.y + "-" + p.m + "-" + p.d; }
+function mateixDia(a, b) { return diaDe(a) === diaDe(b); }
+function deMes(m) { return (/^[aeiou]/.test(MESOS[m]) ? "d'" : "de ") + MESOS[m]; }
+function hora(ms) { var p = parts(ms); return p.h + ":" + p.mi; }
+function art(ms) { return parts(ms).h === 1 ? "la " : "les "; }
+function aLes(ms) { return "a " + art(ms) + hora(ms); }
+function deLes(ms) { return "de " + art(ms) + hora(ms); }
+function capA(ms) { return "cap a " + art(ms) + hora(ms); }
+
+/* «avui», «ahir» o «dimecres 12 de novembre»; l'any només si no és l'actual */
+function quinDia(ms) {
+  var ara = Date.now();
+  if (mateixDia(ms, ara)) return "avui";
+  if (mateixDia(ms, ara - 864e5)) return "ahir";
+  var p = parts(ms), s = DIES[p.wd] + " " + p.d + " " + deMes(p.m);
+  return p.y !== parts(ara).y ? s + " de " + p.y : s;
+}
+function quan(ms) { return quinDia(ms) + " " + aLes(ms); }
+function desDe(ms) {
+  if (mateixDia(ms, Date.now())) return "des de " + art(ms) + hora(ms);
+  var q = quinDia(ms);
+  return "des " + (/^[aeiou]/.test(q) ? "d'" : "de ") + q + " " + aLes(ms);
+}
+function mesAny(ms) { var p = parts(ms); return MESOS[p.m].charAt(0).toUpperCase() + MESOS[p.m].slice(1) + " de " + p.y; }
+
+function durada(ms) {
+  if (!(ms >= 0)) return "—";
+  var m = Math.round(ms / 60000);
+  if (m < 1) return "menys d'un minut";
+  if (m < 60) return m + " min";
+  var h = Math.floor(m / 60), r = m % 60;
+  if (h < 24) return h + " h" + (r ? " " + r + " min" : "");
+  var d = Math.floor(h / 24), hr = h % 24;
+  return d + (d === 1 ? " dia" : " dies") + (hr ? " " + hr + " h" : "");
+}
+function fa(ms) { return ms < 60000 ? "fa un moment" : "fa " + durada(ms); }
+function v(x) { return NF.format(Math.round(x)) + " V"; }
+function llista(a) { return a.length < 2 ? (a[0] || "") : a.slice(0, -1).join(", ") + " i " + a[a.length - 1]; }
+function noms(a) { return Array.isArray(a) ? a.filter(function (x) { return typeof x === "string" && x; }) : []; }
+
+/* ---------- carregar ---------- */
+function carrega(data) {
+  D = (data && typeof data === "object") ? data : {};
+  EV = (Array.isArray(D.events) ? D.events : []).filter(function (e) {
+    return e && typeof e === "object" && (e.tipus === "tall" || e.tipus === "tensio" || e.tipus === "circuit") && t(e.inici) !== null;
+  }).sort(function (a, b) { return t(b.inici) - t(a.inici); });
+  var res = !D.contacte && !EV.length;
+  $("buit").hidden = !res;
+  $("full").hidden = res;
+  VEURE = 40;
+  pinta();
+}
+
+function pinta() {
+  if ($("full").hidden) return;
+  pintaAra();
+  pintaXifres();
+  pintaLlista();
+  pintaVigila();
+}
+function mostra() { pinta(); }
+
+/* ---------- ara ---------- */
+function obert(tipus) {
+  var ara = Date.now();
+  for (var i = 0; i < EV.length; i++) {
+    var e = EV[i];
+    if (e.tipus === tipus && !e.fi && ara - t(e.inici) < 7 * 864e5) return e;
+  }
+  return null;
+}
+
+function pintaAra() {
+  var A = $("ara"), ara = Date.now();
+  var contacte = t(D.contacte), silenci = contacte === null ? null : ara - contacte;
+  var tall = obert("tall"), circ = obert("circuit");
+  var cls = "", ic = "i-ok", titol, text;
+
+  if (tall) {
+    cls = "alerta"; ic = "i-llamp";
+    titol = "Ara no hi ha llum";
+    text = cap(desDe(t(tall.inici))) + " (" + fa(ara - t(tall.inici)) + "), segons " + (tall.font === "sai" ? "el SAI" : "l'alarma") + ".";
+  } else if (silenci !== null && silenci > SILENCI) {
+    cls = "avis"; ic = "i-silenci";
+    titol = "Fa " + durada(silenci) + " que el Home Assistant no diu res";
+    text = "L'últim cop va ser " + quan(contacte) + ". Potser no hi ha llum a casa, o no hi ha internet. " +
+      "Quan torni a parlar, sabrem si ha estat un tall i quant ha durat.";
+  } else if (circ) {
+    cls = "avis"; ic = "i-endoll";
+    titol = "Sense corrent: " + (llista(noms(circ.aparells)) || "un aparell de prova");
+    text = cap(desDe(t(circ.inici))) + ". Si és endollat on sempre, potser ha saltat el diferencial o el magnetotèrmic d'aquell circuit.";
+  } else {
+    titol = contacte === null ? "Encara no sé com està" : "Hi ha llum";
+    var ultim = null;
+    for (var i = 0; i < EV.length; i++) { if (EV[i].tipus === "tall" && EV[i].fi) { ultim = EV[i]; break; } }
+    text = (contacte === null ? "El Home Assistant encara no ha dit que és viu." : "El Home Assistant ha parlat " + fa(silenci) + ".") +
+      (ultim ? " L'últim tall va ser " + quan(t(ultim.inici)) + " i va durar " + durada(t(ultim.fi) - t(ultim.inici)) + "." : " No hi ha cap tall apuntat.");
+  }
+  A.className = "ara" + (cls ? " " + cls : "");
+  A.replaceChildren();
+  var box = el("div", "icon-box"); box.appendChild(el("i", "ic " + ic)); A.appendChild(box);
+  var d = el("div"); d.appendChild(el("b", "", titol)); d.appendChild(el("p", "", text)); A.appendChild(d);
+}
+
+/* ---------- xifres ---------- */
+function stat(label, valor, petit) {
+  var d = el("div", "stat");
+  d.appendChild(el("span", "", label));
+  d.appendChild(el("b", "", valor));
+  if (petit) d.appendChild(el("small", "", petit));
+  return d;
+}
+
+function pintaXifres() {
+  var des = Date.now() - 365 * 864e5, X = $("xifres");
+  var dins = EV.filter(function (e) { return t(e.inici) >= des; });
+  var talls = dins.filter(function (e) { return e.tipus === "tall"; });
+  var tancats = talls.filter(function (e) { return t(e.fi) !== null; });
+  var total = tancats.reduce(function (s, e) { return s + Math.max(0, t(e.fi) - t(e.inici)); }, 0);
+  var llarg = tancats.reduce(function (m, e) { return (!m || t(e.fi) - t(e.inici) > t(m.fi) - t(m.inici)) ? e : m; }, null);
+  var tens = dins.filter(function (e) { return e.tipus === "tensio"; });
+  var baixes = tens.filter(function (e) { return typeof e.minima === "number" && e.sentit !== "alta"; });
+  var minima = baixes.reduce(function (m, e) { return Math.min(m, e.minima); }, Infinity);
+  var circs = dins.filter(function (e) { return e.tipus === "circuit"; });
+
+  X.replaceChildren();
+  X.appendChild(stat("Talls de llum", NF.format(talls.length),
+    talls.length ? "l'últim, " + quinDia(t(talls[0].inici)) : "cap en un any"));
+  X.appendChild(stat("Sense llum", tancats.length ? durada(total) : "0 min",
+    llarg ? "el més llarg, " + durada(t(llarg.fi) - t(llarg.inici)) : "en total"));
+  X.appendChild(stat("Tensió fora de marge", NF.format(tens.length),
+    baixes.length ? "la més baixa, " + v(minima) : (tens.length ? "totes per dalt" : "entre 207 i 253 V")));
+  X.appendChild(stat("Aparells sense corrent", NF.format(circs.length),
+    circs.length ? "l'últim, " + quinDia(t(circs[0].inici)) : "cap circuit saltat"));
+}
+
+/* ---------- historial ---------- */
+var FILTRES = [["tot", "Tot"], ["tall", "Talls"], ["tensio", "Tensió"], ["circuit", "Aparells"]];
+
+function pintaLlista() {
+  var F = $("filtres"); F.replaceChildren();
+  if (!FILTRES.some(function (f) { return f[0] === FILTRE; })) FILTRE = "tot";
+  FILTRES.forEach(function (f) {
+    var n = f[0] === "tot" ? EV.length : EV.filter(function (e) { return e.tipus === f[0]; }).length;
+    if (f[0] !== "tot" && !n && FILTRE !== f[0]) return;
+    var b = el("button", "", f[1] + " · " + NF.format(n));
+    b.type = "button";
+    b.setAttribute("aria-pressed", String(FILTRE === f[0]));
+    b.onclick = function () { FILTRE = f[0]; lsSet(FILTRE_KEY, FILTRE); VEURE = 40; pintaLlista(); };
+    F.appendChild(b);
+  });
+
+  var L = $("llista"); L.replaceChildren();
+  var vis = EV.filter(function (e) { return FILTRE === "tot" || e.tipus === FILTRE; });
+  if (!vis.length) {
+    L.appendChild(el("p", "hint", FILTRE === "tot" ? "Encara no hi ha res apuntat. El Home Assistant hi escriurà cada tall que vegi."
+      : "D'aquest tipus encara no n'hi ha cap."));
+    $("mes").hidden = true;
+    return;
+  }
+  var mes = null, grup = null;
+  vis.slice(0, VEURE).forEach(function (e) {
+    var m = mesAny(t(e.inici));
+    if (m !== mes) {
+      mes = m;
+      L.appendChild(el("div", "mesllum", m));
+      grup = el("div", "grup"); L.appendChild(grup);
+    }
+    grup.appendChild(fila(e));
+  });
+  var queden = vis.length - VEURE;
+  $("mes").hidden = queden <= 0;
+  if (queden > 0) $("mes").textContent = "Mostra'n més (" + NF.format(queden) + ")";
+}
+$("mes").onclick = function () { VEURE += 60; pintaLlista(); };
+
+/* L'inici d'un tall vist en arrencar és aproximat (l'últim batec): «cap a». */
+function franja(e) {
+  var a = t(e.inici), b = t(e.fi), aprox = e.tipus === "tall" && e.font === "arrencada";
+  var s = cap(quinDia(a)) + ", ";
+  var des = aprox ? "des de " + capA(a) : "des de " + art(a) + hora(a);
+  if (b === null) return s + des;
+  if (b - a < 60000) return s + (aprox ? capA(a) : aLes(a));
+  if (mateixDia(a, b)) return s + (aprox ? des + " fins " + aLes(b) : deLes(a) + " " + aLes(b));
+  return s + des + ", fins " + quinDia(b) + " " + aLes(b);
+}
+
+function fila(e) {
+  var a = t(e.inici), b = t(e.fi), oberta = b === null;
+  var r = el("div", "ev t-" + e.tipus + (oberta ? " obert" : ""));
+  var box = el("div", "icon-box");
+  box.appendChild(el("i", "ic " + (e.tipus === "tall" ? "i-llamp" : e.tipus === "tensio" ? "i-ona" : "i-endoll")));
+  r.appendChild(box);
+
+  var mn = el("div", "evmain"), titol, nota = "";
+  var ap = noms(e.aparells);
+  if (e.tipus === "tall") {
+    titol = "Tall de llum";
+    nota = e.font === "arrencada" ? "El Home Assistant es va apagar i ha tornat a arrencar sol."
+      : e.font === "sai" ? "Ho ha dit el SAI." : "Ho ha dit l'alarma.";
+  } else if (e.tipus === "tensio") {
+    titol = e.sentit === "alta" ? "Pujada de tensió" : "Baixada de tensió";
+    nota = ap.length ? "Mesurat a " + llista(ap) + "." : "";
+  } else {
+    titol = "Sense corrent" + (ap.length ? ": " + llista(ap) : "");
+    nota = "Potser ha saltat el circuit on és endollat.";
+  }
+  mn.appendChild(el("div", "n", titol));
+  mn.appendChild(el("small", "", franja(e) + "."));
+  if (nota) mn.appendChild(el("small", "", nota));
+  r.appendChild(mn);
+
+  var val = el("div", "evval");
+  if (e.tipus === "tensio") {
+    var x = e.sentit === "alta" ? e.maxima : e.minima;
+    val.appendChild(el("b", "", typeof x === "number" ? v(x) : "—"));
+    if (b !== null) val.appendChild(el("small", "", durada(b - a)));
+  } else if (oberta) {
+    val.appendChild(el("b", "", "encara"));
+    val.appendChild(el("small", "", fa(Date.now() - a)));
+  } else {
+    val.appendChild(el("b", "", durada(b - a)));
+  }
+  r.appendChild(val);
+  return r;
+}
+
+/* ---------- què vigila ---------- */
+function pintaVigila() {
+  var V = D.vigila && typeof D.vigila === "object" ? D.vigila : {}, G = $("vig");
+  var tens = noms(V.tensio), sent = noms(V.sentinelles), alarma = noms(V.alarma), sai = noms(V.sai);
+  G.replaceChildren();
+  function card(h, text, no) {
+    var c = el("div", "card" + (no ? " no" : ""));
+    c.appendChild(el("h3", "", h)); c.appendChild(el("p", "", text));
+    G.appendChild(c);
+  }
+  card("Talls de llum", "Sempre. Quan el Home Assistant s'apaga i torna a arrencar sense haver-se aturat bé, apunta el tall." +
+    (alarma.length || sai.length ? " Si el Home Assistant aguanta encès, també ho diu " + (sai.length ? "el SAI" : "l'alarma") + "." : ""));
+  card("Tensió", tens.length ? llista(tens) + ". Avisa quan surt de 207-253 V."
+    : "No hi ha cap aparell que mesuri la tensió. N'hi faria prou amb un endoll amb mesura (un Shelly, per exemple).", !tens.length);
+  card("Aparells de prova", sent.length ? llista(sent) + ". Si un queda sense resposta, potser ha saltat el seu circuit."
+    : "Cap. Es posen al camp «Solell llum: aparells de prova» del Home Assistant, un per circuit.", !sent.length);
+  card("Alarma i SAI", alarma.length || sai.length ? llista(alarma.concat(sai)) + "."
+    : "Ni l'alarma ni cap SAI no hi són connectats.", !(alarma.length || sai.length));
+
+  var peu = [], c = t(D.contacte);
+  if (c !== null) peu.push("El Home Assistant" + (V.ha ? " (" + V.ha + ")" : "") + " va parlar per última vegada " + quan(c) + ".");
+  peu.push("L'hora d'inici d'un tall que el Home Assistant veu en tornar a arrencar és la del seu últim senyal: pot ser fins a mig minut abans.");
+  $("peu").textContent = peu.join(" ");
+}
+
+/* ---------- memòria cau ---------- */
+(function () {
+  var c = lsGet(CACHE_KEY);
+  if (c) { try { carrega(JSON.parse(c)); } catch (e) { lsDel(CACHE_KEY); } }
+})();
+
+/* L'estat d'ara depèn de l'hora: el refresco cada minut. I quan tornes a la
+   pàgina (o cada cinc minuts, si és oberta), torno a mirar el Drive. */
+setInterval(function () { if (D && !$("full").hidden) { pintaAra(); } }, 60000);
+setInterval(function () { if (gToken && !document.hidden) llegeixDrive(); }, 5 * 60000);
+document.addEventListener("visibilitychange", function () {
+  if (!document.hidden && gToken && Date.now() - darreraLectura > 2 * 60000) llegeixDrive();
+});
+
+/* ---------- Google: entrada i Drive (només lectura) ---------- */
+var CID_KEY = "g_client_id";
+var ALLOWED_EMAIL = "roninsilent@gmail.com";
+var gToken = null, gTokenClient = null;
+function showSetup() { $("gate-setup").hidden = false; $("gate-login").hidden = true; $("gate").hidden = false; }
+
+/* El botó d'entrar, bloquejat mentre s'hi entra: un segon toc no ha de tornar a
+   demanar el compte. Es deixa anar quan la porta es tanca o quan torna un error,
+   i al cap d'un minut i mig per si la finestra de Google s'ha tancat sense dir res. */
+var gEntrant = false, gEntrantT = null;
+function entraBloqueja() {
+  var b = $("gate-signin");
+  if (!b) return;
+  gEntrant = true;
+  b.dataset.txt = b.dataset.txt || b.textContent;
+  b.disabled = true;
+  b.textContent = "Entrant\u2026";
+  clearTimeout(gEntrantT);
+  gEntrantT = setTimeout(entraDeixa, 90000);
+}
+function entraDeixa() {
+  var b = $("gate-signin");
+  gEntrant = false;
+  clearTimeout(gEntrantT);
+  if (!b) return;
+  b.disabled = false;
+  if (b.dataset.txt) b.textContent = b.dataset.txt;
+}
+
+function showLogin(msg){ entraDeixa(); $("gate-setup").hidden = true; $("gate-login").hidden = false; $("gate").hidden = false; $("gate-status").textContent = msg || ""; }
+function hideGate(){ entraDeixa(); $("gate").hidden = true; }
+var GSCOPE = "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
+
+/* ---------- la sessió de Google, compartida entre les apps ---------- */
+/* El testimoni dura una hora i totes les apps són al mateix domini, així que el
+   guardo i el torno a fer servir: passar d'una app a l'altra no ha de tornar a
+   demanar el compte. Només es reaprofita si és del compte que toca i si porta
+   tots els permisos que demana l'app on s'obre. */
+/* Una clau per compte: hi ha apps que entren amb el compte de l'estudi i
+   altres amb el de casa. Si en compartissin una de sola, cada app rebutjaria
+   el testimoni de l'altra i, pitjor, l'hi esborraria. */
+var TOK_KEY = "g_token_" + ALLOWED_EMAIL;
+function tokDesa(resp, u) {
+  try {
+    localStorage.setItem(TOK_KEY, JSON.stringify({
+      t: resp.access_token,
+      fins: Date.now() + (Math.max(60, (+resp.expires_in || 3600)) - 120) * 1000,
+      scope: resp.scope || GSCOPE,
+      email: (u && u.email) || "",
+      foto: (u && u.picture) || ""
+    }));
+  } catch (e) {}
+}
+function tokDesat(calen) {
+  try {
+    var d = JSON.parse(localStorage.getItem(TOK_KEY) || "null");
+    if (!d || !d.t || !(d.fins > Date.now())) return null;
+    if ((d.email || "").trim().toLowerCase() !== ALLOWED_EMAIL) return null;
+    var te = String(d.scope || "").split(/\s+/);
+    var falta = String(calen || "").split(/\s+/).filter(Boolean).filter(function (s) {
+      return te.indexOf(s) < 0;
+    });
+    if (falta.length) return null;
+    return d;
+  } catch (e) { return null; }
+}
+function tokOblida() { try { localStorage.removeItem(TOK_KEY); } catch (e) {} }
+
+function authOk(email, foto) {
+  $("acct-pic").src = foto || "";
+  $("acct-email").textContent = email || "";
+  $("acctbar").hidden = false;
+  hideGate();
+  llegeixDrive();
+}
+
+function gateInit() {
+  var cid = lsGet(CID_KEY);
+  if (!cid) { showSetup(); return; }
+  var desat = tokDesat(GSCOPE);
+  if (desat) { gToken = desat.t; hideGate(); authOk(desat.email, desat.foto); }
+  else showLogin("");
+  waitForGis(function () {
+    try {
+      gTokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: cid,
+        scope: GSCOPE,
+        callback: onGToken,
+        error_callback: function () { showLogin("No s'ha pogut iniciar sessió. Torna-ho a provar."); }
+      });
+    } catch (e) { showLogin("El Client ID no sembla vàlid. Comprova'l amb «Canvia el Client ID»."); }
+  });
+}
+function waitForGis(cb, tries) {
+  tries = tries || 0;
+  if (typeof google !== "undefined" && google.accounts && google.accounts.oauth2) cb();
+  else if (tries < 40) setTimeout(function () { waitForGis(cb, tries + 1); }, 250);
+  else showLogin("No s'ha pogut carregar l'inici de sessió de Google (revisa la connexió).");
+}
+$("gate-cid-save").onclick = function () {
+  var v = $("gate-cid").value.trim();
+  if (!v) { toast("Enganxa primer el Client ID"); return; }
+  lsSet(CID_KEY, v);
+  gateInit();
+};
+$("gate-reconfig").onclick = function () { lsDel(CID_KEY); showSetup(); };
+$("gate-signin").onclick = function () {
+  if (gEntrant) return;
+  if (!gTokenClient) { showLogin("Encara carregant… torna a tocar en un moment."); return; }
+  entraBloqueja();
+  gTokenClient.requestAccessToken({ prompt: "" });
+};
+$("acct-signout").onclick = function () {
+  tokOblida();
+  if (gToken && typeof google !== "undefined" && google.accounts && google.accounts.oauth2.revoke) google.accounts.oauth2.revoke(gToken, function () {});
+  gToken = null;
+  $("acctbar").hidden = true;
+  showLogin("");
+};
+$("acct-reload").onclick = function () { if (gToken) llegeixDrive(); else showLogin(""); };
+
+function onGToken(resp) {
+  if (resp.error) { showLogin("Accés no concedit. Torna-ho a provar."); return; }
+  gToken = resp.access_token;
+  fetch("https://www.googleapis.com/oauth2/v3/userinfo", { headers: { Authorization: "Bearer " + gToken } })
+    .then(function (r) { return r.json(); })
+    .then(function (u) {
+      var email = (u.email || "").trim().toLowerCase();
+      if (email !== ALLOWED_EMAIL) {
+        if (typeof google !== "undefined" && google.accounts && google.accounts.oauth2.revoke) google.accounts.oauth2.revoke(gToken, function () {});
+        gToken = null;
+        showLogin("Aquest compte (" + (u.email || "") + ") no hi té accés. Entra-hi amb " + ALLOWED_EMAIL + ".");
+        return;
+      }
+      tokDesa(resp, u);
+      authOk(u.email, u.picture);
+    })
+    .catch(function () { gToken = null; showLogin("No he pogut confirmar el compte. Torna-ho a provar."); });
+}
+function driveFetch(url, opts) {
+  opts = opts || {};
+  opts.headers = Object.assign({}, opts.headers, { Authorization: "Bearer " + gToken });
+  return fetch(url, opts).then(function (r) {
+    if (r.status === 401) { tokOblida(); throw { code: "g_401" }; }
+    if (!r.ok) throw { code: "g_http_" + r.status };
+    return r;
+  });
+}
+/* Amb el permís drive.file l'app només veu els fitxers que ha creat ella. Si no en troba cap, en crea un de buit;
+   l'script de Google (llum/apps-script.gs) escriu a totes les còpies que es diguin així. Aquesta app no hi escriu res més. */
+function driveFindOrCreate(name, mime, initialBody) {
+  var q = encodeURIComponent("name='" + name + "' and trashed=false");
+  return driveFetch("https://www.googleapis.com/drive/v3/files?q=" + q + "&fields=files(id,name,modifiedTime)&orderBy=" + encodeURIComponent("modifiedTime desc") + "&spaces=drive")
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d.files && d.files.length) return d.files[0].id;
+      var boundary = "solellboundary";
+      var body = "--" + boundary + "\r\nContent-Type: application/json\r\n\r\n" + JSON.stringify({ name: name }) +
+        "\r\n--" + boundary + "\r\nContent-Type: " + mime + "\r\n\r\n" + (initialBody || "") + "\r\n--" + boundary + "--";
+      return driveFetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart", {
+        method: "POST", headers: { "Content-Type": "multipart/related; boundary=" + boundary }, body: body
+      }).then(function (r) { return r.json(); }).then(function (f) { return f.id; });
+    });
+}
+function llegeixDrive() {
+  driveFindOrCreate(NOM, "application/json", "{}")
+    .then(function (id) { return driveFetch("https://www.googleapis.com/drive/v3/files/" + id + "?alt=media"); })
+    .then(function (r) { return r.text(); })
+    .then(function (t) {
+      var data = {};
+      try { data = t ? JSON.parse(t) : {}; } catch (e) { data = {}; }
+      darreraLectura = Date.now();
+      if (data && data.versio) lsSet(CACHE_KEY, JSON.stringify(data));
+      carrega(data);
+    })
+    .catch(function (e) {
+      if (e && e.code === "g_401") { gToken = null; showLogin("La sessió de Google ha caducat; torna a entrar-hi."); return; }
+      toast("No he pogut llegir el Drive ara mateix." + (D ? " Et mostro les últimes dades guardades." : ""));
+      if (!D) { $("buit").hidden = false; }
+    });
+}
+
+gateInit();
+</script>
+<script>
+/* ---------- les xifres grans compten fins al seu valor quan apareixen ----------
+   Només canvia el que es veu mentre compta: al final hi torna a posar el text
+   exacte que hi havia. Amb «reduir el moviment» activat, no fa res. */
+(function () {
+  "use strict";
+  if (!("IntersectionObserver" in window) || !window.matchMedia || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var SEL = ".stat b";
+  var NUM = /\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d+(?:,\d+)?/;
+  function compta(b) {
+    var txt = b.textContent, m = txt.match(NUM);
+    if (!m) return;
+    var s = m[0], dec = (s.split(",")[1] || "").length, mil = s.indexOf(".") > -1;
+    var v = parseFloat(s.replace(/\./g, "").replace(",", "."));
+    if (!(v > 0)) return;
+    var pre = txt.slice(0, m.index), post = txt.slice(m.index + s.length), ara = txt, t0 = null, dur = 800;
+    function fmt(x) {
+      var p = x.toFixed(dec).split("."), e = p[0];
+      if (mil) e = e.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      return e + (dec ? "," + p[1] : "");
+    }
+    function pas(t) {
+      if (!b.isConnected || b.textContent !== ara) return;   /* l'han tornat a pintar: no hi toco */
+      if (t0 === null) t0 = t;
+      var k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      ara = k < 1 ? pre + fmt(v * e) + post : txt;
+      b.textContent = ara;
+      if (k < 1) requestAnimationFrame(pas);
+    }
+    requestAnimationFrame(pas);
+  }
+  var vist = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { vist.unobserve(e.target); compta(e.target); } });
+  }, { threshold: 0.5 });
+  function mira(n) {
+    if (n.nodeType !== 1) return;
+    if (n.matches(SEL)) vist.observe(n);
+    [].forEach.call(n.querySelectorAll(SEL), function (b) { vist.observe(b); });
+  }
+  var arrel = document.querySelector("main") || document.body;
+  new MutationObserver(function (ms) { ms.forEach(function (m) { [].forEach.call(m.addedNodes, mira); }); })
+    .observe(arrel, { childList: true, subtree: true });
+  mira(arrel);
+})();
+</script>
+</body>
+</html>
