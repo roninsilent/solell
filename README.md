@@ -122,8 +122,8 @@ companyia: en tots dos casos la casa es queda a fosques.
      `homeassistant: packages: !include_dir_named packages`.
    - Al `secrets.yaml`, posa
      `solell_llum_url: "URL_QUE_ACABA_EN_/exec?clau=LA_CLAU"`.
-   - Reinicia el Home Assistant. En arrencar ja diu què pot vigilar, i l'app ho
-     ensenya a «Què vigila».
+   - Reinicia el Home Assistant. En arrencar ja avisa l'script, i a l'app surt
+     «El Home Assistant ha parlat fa un moment».
 
 L'URL amb la clau és l'única porta: sense la clau, l'script no escriu res.
 L'script en guarda una còpia sencera a `solell-llum-mestre.json` i l'aboca a
