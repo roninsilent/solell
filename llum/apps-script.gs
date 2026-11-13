@@ -78,8 +78,9 @@ function doPost(e) {
    No es pot executar sola: des de l'editor, fes una funció de pas que la cridi,
    per exemple apuntaTall('2026-11-12T05:38:13+01:00', '2026-11-12T05:46:45+01:00', 'Per què ho sé').
    No toca «contacte», que és l'última vegada que ha parlat el Home Assistant. */
-function apuntaTall(inici, fi, nota) {
-  var m = { tipus: 'historic', inici: Date.parse(inici) / 1000, fi: Date.parse(fi) / 1000, nota: nota };
+function apuntaTall(inici, fi, nota, incert) {
+  // incert = true: inici i fi no són el tall, sinó la finestra on va passar (l'app no hi posa durada)
+  var m = { tipus: 'historic', inici: Date.parse(inici) / 1000, fi: Date.parse(fi) / 1000, nota: nota, incert: incert === true };
   var lock = LockService.getScriptLock();
   if (!lock.tryLock(25000)) throw new Error('Ocupat: torna-ho a provar d\'aquí a un moment');
   try {
@@ -112,6 +113,7 @@ function aplica_(D, m, ara) {
     var hist = { tipus: 'tall', font: 'historial', inici: iso_(ini), fi: iso_(fin) };
     var nota = str_(m.nota, 200);
     if (nota) hist.nota = nota;
+    if (m.incert === true) hist.incert = true;
     afegeix_(D, hist);
     return 'tall';
   }
