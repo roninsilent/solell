@@ -74,12 +74,47 @@ function doPost(e) {
   }
 }
 
+/* Per apuntar a mà un tall trobat després a l'historial del Home Assistant.
+   No es pot executar sola: des de l'editor, fes una funció de pas que la cridi,
+   per exemple apuntaTall('2026-11-12T05:38:13+01:00', '2026-11-12T05:46:45+01:00', 'Per què ho sé').
+   No toca «contacte», que és l'última vegada que ha parlat el Home Assistant. */
+function apuntaTall(inici, fi, nota) {
+  var m = { tipus: 'historic', inici: Date.parse(inici) / 1000, fi: Date.parse(fi) / 1000, nota: nota };
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(25000)) throw new Error('Ocupat: torna-ho a provar d\'aquí a un moment');
+  try {
+    var D = llegeix_();
+    var fet = aplica_(D, m, Date.now());
+    if (fet === 'tall') { D.actualitzat = new Date().toISOString(); escriu_(D); }
+    Logger.log(fet + ': ' + inici + ' → ' + fi);
+    return fet;
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 /* ---------- què fa cada avís ---------- */
 function aplica_(D, m, ara) {
   if (m.vigila && typeof m.vigila === 'object') D.vigila = vigila_(m.vigila);
   var t = str_(m.tipus, 20);
 
   if (t === 'batec') return 'batec';
+
+  if (t === 'historic') {
+    // Un tall trobat després, mirant l'historial. Hores en segons des del 1970.
+    var hi = num_(m.inici, 1577836800, 4e9), hf = num_(m.fi, 1577836800, 4e9);
+    if (hi === null || hf === null || hf < hi || hf * 1000 > ara + 60000) return 'sense dades';
+    var ini = hi * 1000, fin = hf * 1000;
+    var ja = D.events.some(function (x) {
+      return x.tipus === 'tall' && Date.parse(x.inici) <= fin + 600000 && (Date.parse(x.fi) || ara) >= ini - 600000;
+    });
+    if (ja) return 'ja hi era';
+    var hist = { tipus: 'tall', font: 'historial', inici: iso_(ini), fi: iso_(fin) };
+    var nota = str_(m.nota, 200);
+    if (nota) hist.nota = nota;
+    afegeix_(D, hist);
+    return 'tall';
+  }
 
   if (t === 'arrencada') {
     // El Home Assistant torna a ser viu. «ant» és l'últim batec que va escriure
