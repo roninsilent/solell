@@ -89,10 +89,13 @@ Com sap cada cosa:
   tornat la llum, perquè després d'un tall el rellotge de casa pot anar
   malament fins que torna internet. L'inici és aproximat: és l'últim batec, fins
   a mig minut abans del tall.
-- **Talls amb el Home Assistant encès.** Si l'alarma Ajax és connectada per SIA,
+- **Talls amb el Home Assistant encès.** Si l'alarma Ajax hi és connectada (per
+  SIA o amb Aegis for Ajax, amb el sensor «Alimentació externa» del hub activat),
   o hi ha un SAI amb NUT, fa cas del que diuen.
-- **Tensió.** Fa servir tots els sensors de tensió que troba al Home Assistant,
-  com els endolls Shelly o Tuya amb mesura o un mesurador al quadre. Si no n'hi
+- **Tensió.** Fa servir els sensors de tensió que troba al Home Assistant, com
+  l'inversor, els endolls Shelly o Tuya amb mesura o un mesurador al quadre. Deixa
+  fora els de corrent continu (plaques, MPPT, bateries). Si els vols triar tu,
+  posa'ls separats per comes al camp «Solell llum: sensors de tensió». Si no n'hi
   ha cap, aquesta part no fa res. Una baixada més curta que l'interval amb què
   mesura l'endoll no es veu.
 - **Aparells sense corrent.** Al camp «Solell llum: aparells de prova» del Home
