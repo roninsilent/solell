@@ -564,7 +564,7 @@ $("mes").onclick = function () { VEURE += 60; pintaLlista(); };
 
 /* L'inici d'un tall vist en arrencar és aproximat (l'últim batec): «cap a». */
 function franja(e) {
-  var a = t(e.inici), b = t(e.fi), aprox = e.tipus === "tall" && e.font === "arrencada";
+  var a = t(e.inici), b = t(e.fi), aprox = e.tipus === "tall" && (e.font === "arrencada" || e.font === "historial");
   var s = cap(quinDia(a)) + ", ";
   var des = aprox ? "des de " + capA(a) : "des de " + art(a) + hora(a);
   if (b === null) return s + des;
@@ -584,7 +584,9 @@ function fila(e) {
   var ap = noms(e.aparells);
   if (e.tipus === "tall") {
     titol = "Tall de llum";
-    nota = e.font === "arrencada" ? "El Home Assistant es va apagar i ha tornat a arrencar sol."
+    nota = typeof e.nota === "string" && e.nota ? e.nota
+      : e.font === "arrencada" ? "El Home Assistant es va apagar i ha tornat a arrencar sol."
+      : e.font === "historial" ? "Reconstruït a partir de l'historial del Home Assistant."
       : e.font === "sai" ? "Ho ha dit el SAI." : "Ho ha dit l'alarma.";
   } else if (e.tipus === "tensio") {
     titol = e.sentit === "alta" ? "Pujada de tensió" : "Baixada de tensió";
