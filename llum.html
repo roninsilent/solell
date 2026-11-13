@@ -482,7 +482,9 @@ function pintaAra() {
     var ultim = null;
     for (var i = 0; i < EV.length; i++) { if (EV[i].tipus === "tall" && EV[i].fi) { ultim = EV[i]; break; } }
     text = (contacte === null ? "El Home Assistant encara no ha dit que és viu." : "El Home Assistant ha parlat " + fa(silenci) + ".") +
-      (ultim ? " L'últim tall va ser " + quan(t(ultim.inici)) + " i va durar " + durada(t(ultim.fi) - t(ultim.inici)) + "." : " No hi ha cap tall apuntat.");
+      (!ultim ? " No hi ha cap tall apuntat."
+        : incert(ultim) ? " L'últim tall va ser entre " + quan(t(ultim.inici)) + " i " + quan(t(ultim.fi)) + "; no se sap quant va durar."
+        : " L'últim tall va ser " + quan(t(ultim.inici)) + " i va durar " + durada(t(ultim.fi) - t(ultim.inici)) + ".");
   }
   A.className = "ara" + (cls ? " " + cls : "");
   A.replaceChildren();
@@ -503,7 +505,7 @@ function pintaXifres() {
   var des = Date.now() - 365 * 864e5, X = $("xifres");
   var dins = EV.filter(function (e) { return t(e.inici) >= des; });
   var talls = dins.filter(function (e) { return e.tipus === "tall"; });
-  var tancats = talls.filter(function (e) { return t(e.fi) !== null; });
+  var tancats = talls.filter(function (e) { return t(e.fi) !== null && !incert(e); });
   var total = tancats.reduce(function (s, e) { return s + Math.max(0, t(e.fi) - t(e.inici)); }, 0);
   var llarg = tancats.reduce(function (m, e) { return (!m || t(e.fi) - t(e.inici) > t(m.fi) - t(m.inici)) ? e : m; }, null);
   var tens = dins.filter(function (e) { return e.tipus === "tensio"; });
@@ -562,9 +564,17 @@ function pintaLlista() {
 }
 $("mes").onclick = function () { VEURE += 60; pintaLlista(); };
 
+/* Un tall «incert» és el que es troba després a l'historial sense saber-ne l'hora:
+   inici i fi no són el tall, sinó la finestra on va passar. No té durada. */
+function incert(e) { return e.tipus === "tall" && e.incert === true && t(e.fi) !== null; }
+
 /* L'inici d'un tall vist en arrencar és aproximat (l'últim batec): «cap a». */
 function franja(e) {
   var a = t(e.inici), b = t(e.fi), aprox = e.tipus === "tall" && (e.font === "arrencada" || e.font === "historial");
+  if (incert(e)) {
+    if (mateixDia(a, b)) return cap(quinDia(a)) + ", entre " + art(a) + hora(a) + " i " + art(b) + hora(b);
+    return "Entre " + quan(a) + " i " + quan(b);
+  }
   var s = cap(quinDia(a)) + ", ";
   var des = aprox ? "des de " + capA(a) : "des de " + art(a) + hora(a);
   if (b === null) return s + des;
@@ -608,6 +618,9 @@ function fila(e) {
   } else if (oberta) {
     val.appendChild(el("b", "", "encara"));
     val.appendChild(el("small", "", fa(Date.now() - a)));
+  } else if (incert(e)) {
+    val.appendChild(el("b", "", "?"));
+    val.appendChild(el("small", "", "no se sap"));
   } else {
     val.appendChild(el("b", "", durada(b - a)));
   }
