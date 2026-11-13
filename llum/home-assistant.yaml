@@ -17,10 +17,13 @@
 #     estat un tall (o algú l'ha desendollat). L'hora en què ha tornat la llum la
 #     calcula l'script de Google amb el seu rellotge, perquè el d'aquí pot anar
 #     malament fins que torna internet.
-#   - Talls amb el Home Assistant encès: si l'alarma Ajax és connectada per SIA,
-#     o hi ha un SAI amb NUT, fa cas del que diuen.
-#   - Tensió: fa servir tots els sensors de tensió que troba (endolls Shelly o
-#     Tuya, un mesurador al quadre…). Avisa quan la tensió surt de 207-253 V.
+#   - Talls amb el Home Assistant encès: si l'alarma Ajax hi és connectada (per
+#     SIA o amb Aegis for Ajax), o hi ha un SAI amb NUT, fa cas del que diuen.
+#   - Tensió: fa servir els sensors de tensió que troba (l'inversor, endolls
+#     Shelly o Tuya, un mesurador al quadre…), menys els de corrent continu
+#     (plaques, MPPT, bateries). Si vols triar-los tu, posa'ls separats per comes
+#     al camp «Solell llum: sensors de tensió». Avisa quan la tensió surt de
+#     207-253 V.
 #   - Aparells sense corrent: al camp «Solell llum: aparells de prova» s'hi
 #     posen, separats per comes, els entity_id d'un endoll o d'un llum de cada
 #     circuit. Si n'hi ha un que passa més d'un minut i mig «no disponible», potser
@@ -68,6 +71,10 @@ input_text:
     name: "Solell llum: aparells de prova"
     icon: mdi:power-plug-outline
     max: 255
+  solell_llum_sensors_de_tensio:
+    name: "Solell llum: sensors de tensió"
+    icon: mdi:sine-wave
+    max: 255
 
 input_datetime:
   solell_llum_tensio_inici:
@@ -101,13 +108,35 @@ template:
           {{ (this.attributes.get('tensio', []) | count) + (this.attributes.get('sentinelles', []) | count)
              + (this.attributes.get('alarma', []) | count) + (this.attributes.get('sai', []) | count) }}
         attributes:
-          tensio: >-
-            {% set ns = namespace(n=[]) %}
-            {% for s in states.sensor if s.attributes.get('device_class') == 'voltage'
-                 and s.attributes.get('unit_of_measurement') == 'V' and 150 < (s.state | float(0)) < 300 %}
-              {% set ns.n = ns.n + [s.name] %}
+          # Els sensors de tensió de la xarxa (vegeu la capçalera).
+          tensio_ids: >-
+            {% set ns = namespace(t=[], n=[]) %}
+            {% for i in states('input_text.solell_llum_sensors_de_tensio').split(',') | map('trim') | list
+                 if i | regex_match('^sensor\\.[a-z0-9_]+$') %}
+              {% set ns.t = ns.t + [i] %}
+            {% endfor %}
+            {% for s in states.sensor if s.attributes.get('unit_of_measurement') == 'V'
+                 and 100 < (s.state | float(0)) < 300
+                 and (s.entity_id in ns.t or (not ns.t and s.attributes.get('device_class') == 'voltage'
+                      and not ((s.entity_id ~ ' ' ~ s.name) | lower
+                               | regex_search('mppt|string|batter|bateria|plaque|panell|(^|[^a-z])(pv|dc)([^a-z]|$)')))) %}
+              {% set ns.n = ns.n + [s.entity_id] %}
             {% endfor %}
             {{ ns.n }}
+          tensio: >-
+            {% set ns = namespace(t=[], n=[]) %}
+            {% for i in states('input_text.solell_llum_sensors_de_tensio').split(',') | map('trim') | list
+                 if i | regex_match('^sensor\\.[a-z0-9_]+$') %}
+              {% set ns.t = ns.t + [i] %}
+            {% endfor %}
+            {% for s in states.sensor if s.attributes.get('unit_of_measurement') == 'V'
+                 and 100 < (s.state | float(0)) < 300
+                 and (s.entity_id in ns.t or (not ns.t and s.attributes.get('device_class') == 'voltage'
+                      and not ((s.entity_id ~ ' ' ~ s.name) | lower
+                               | regex_search('mppt|string|batter|bateria|plaque|panell|(^|[^a-z])(pv|dc)([^a-z]|$)')))) %}
+              {% set ns.n = ns.n + [s.entity_id] %}
+            {% endfor %}
+            {{ ns.n | map('state_attr', 'friendly_name') | list }}
           sentinelles: >-
             {% set ns = namespace(n=[]) %}
             {% for i in states('input_text.solell_llum_aparells_de_prova').split(',') | map('trim') | list
@@ -117,7 +146,9 @@ template:
             {{ ns.n }}
           alarma: >-
             {% set ns = namespace(n=[]) %}
-            {% for e in integration_entities('sia') if e.startswith('binary_sensor.') and state_attr(e, 'device_class') == 'power' %}
+            {% for e in integration_entities('sia') + integration_entities('aegis_ajax')
+                 if e.startswith('binary_sensor.') and states(e) != 'unknown'
+                    and (state_attr(e, 'device_class') == 'power' or e | regex_search('alimentacio_externa|external_power|mains_power')) %}
               {% set ns.n = ns.n + [state_attr(e, 'friendly_name') or e] %}
             {% endfor %}
             {{ ns.n }}
@@ -134,35 +165,17 @@ template:
         unique_id: solell_llum_tensio_fora
         device_class: problem
         delay_off: "00:00:15"
-        availability: >-
-          {% set ns = namespace(n=0) %}
-          {% for s in states.sensor if s.attributes.get('device_class') == 'voltage'
-               and s.attributes.get('unit_of_measurement') == 'V' and 150 < (s.state | float(0)) < 300 %}
-            {% set ns.n = ns.n + 1 %}
-          {% endfor %}
-          {{ ns.n > 0 }}
+        availability: "{{ (state_attr('sensor.solell_llum_vigila', 'tensio_ids') or []) | count > 0 }}"
         state: >-
-          {% set ns = namespace(v=[]) %}
-          {% for s in states.sensor if s.attributes.get('device_class') == 'voltage'
-               and s.attributes.get('unit_of_measurement') == 'V' and 150 < (s.state | float(0)) < 300 %}
-            {% set ns.v = ns.v + [s.state | float(0)] %}
-          {% endfor %}
-          {{ ns.v | count > 0 and ((ns.v | min) < 207 or (ns.v | max) > 253) }}
+          {% set v = (state_attr('sensor.solell_llum_vigila', 'tensio_ids') or []) | map('states') | map('float', 0) | select('gt', 100) | list %}
+          {{ v | count > 0 and ((v | min) < 207 or (v | max) > 253) }}
         attributes:
           minima: >-
-            {% set ns = namespace(v=[]) %}
-            {% for s in states.sensor if s.attributes.get('device_class') == 'voltage'
-                 and s.attributes.get('unit_of_measurement') == 'V' and 150 < (s.state | float(0)) < 300 %}
-              {% set ns.v = ns.v + [s.state | float(0)] %}
-            {% endfor %}
-            {{ (ns.v | min) if ns.v else none }}
+            {% set v = (state_attr('sensor.solell_llum_vigila', 'tensio_ids') or []) | map('states') | map('float', 0) | select('gt', 100) | list %}
+            {{ (v | min) if v else none }}
           maxima: >-
-            {% set ns = namespace(v=[]) %}
-            {% for s in states.sensor if s.attributes.get('device_class') == 'voltage'
-                 and s.attributes.get('unit_of_measurement') == 'V' and 150 < (s.state | float(0)) < 300 %}
-              {% set ns.v = ns.v + [s.state | float(0)] %}
-            {% endfor %}
-            {{ (ns.v | max) if ns.v else none }}
+            {% set v = (state_attr('sensor.solell_llum_vigila', 'tensio_ids') or []) | map('states') | map('float', 0) | select('gt', 100) | list %}
+            {{ (v | max) if v else none }}
 
       # Algun aparell de prova «no disponible»: potser ha saltat el seu circuit.
       - name: "Solell llum aparells sense corrent"
@@ -186,15 +199,17 @@ template:
             {% endfor %}
             {{ ns.n }}
 
-      # L'alarma (SIA: «Power» apagat) o el SAI (NUT: «OB», amb bateria) diuen que no hi ha corrent.
+      # L'alarma (SIA: «Power» apagat; Aegis for Ajax: «Alimentació externa» apagat) o el SAI
+      # (NUT: «OB», amb bateria) diuen que no hi ha corrent.
       - name: "Solell llum xarxa caiguda"
         unique_id: solell_llum_xarxa
         device_class: problem
         delay_on: "00:00:20"
         state: >-
           {% set ns = namespace(a=false) %}
-          {% for e in integration_entities('sia') if e.startswith('binary_sensor.')
-               and state_attr(e, 'device_class') == 'power' and is_state(e, 'off') %}
+          {% for e in integration_entities('sia') + integration_entities('aegis_ajax')
+               if e.startswith('binary_sensor.') and is_state(e, 'off')
+                  and (state_attr(e, 'device_class') == 'power' or e | regex_search('alimentacio_externa|external_power|mains_power')) %}
             {% set ns.a = true %}
           {% endfor %}
           {% for e in integration_entities('nut') if e.startswith('sensor.') and e.endswith('_status_data')
