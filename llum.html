@@ -591,7 +591,7 @@ function fila(e) {
     nota = ap.length ? "Mesurat a " + llista(ap) + "." : "";
   } else {
     titol = "Sense corrent" + (ap.length ? ": " + llista(ap) : "");
-    nota = "Potser ha saltat el circuit on és endollat.";
+    nota = typeof e.nota === "string" && e.nota ? e.nota : "Potser ha saltat el circuit on és endollat.";
   }
   mn.appendChild(el("div", "n", titol));
   mn.appendChild(el("small", "", franja(e) + "."));
