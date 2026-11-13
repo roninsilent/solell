@@ -142,7 +142,7 @@ ul.mini li{margin:6px 0;line-height:1.45}
 .gate-status{margin-top:12px;font-size:12.5px;color:var(--ink-soft)}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:40;background:var(--ink);color:var(--paper);padding:10px 18px;border-radius:999px;font-size:13.5px;font-weight:600}
 
-/* ---------- llum: l'estat d'ara, les xifres, l'historial i què vigila ---------- */
+/* ---------- llum: l'estat d'ara, les xifres i l'historial ---------- */
 .icon-box{width:38px;height:38px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;flex:none;background:var(--coure-soft)}
 .ic{display:block;flex:none;width:19px;height:19px;background-color:var(--coure-clar);
   -webkit-mask:var(--m) center / contain no-repeat;mask:var(--m) center / contain no-repeat}
@@ -178,13 +178,7 @@ ul.mini li{margin:6px 0;line-height:1.45}
 .ev.obert .evval b{color:var(--alert)}
 #mes{margin-top:14px}
 
-.vig{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.vig .card{margin:0;padding:14px 16px}
-.vig .card h3{font-size:12.5px;color:var(--ink-soft);font-weight:700;margin:0 0 5px}
-.vig .card p{margin:0;font-size:14px;line-height:1.45;overflow-wrap:anywhere}
-.vig .card.no{border-left-color:var(--line-strong)}
-.vig .card.no p{color:var(--ink-dim)}
-@media(max-width:560px){.vig{grid-template-columns:1fr} .ara{padding:16px 16px;gap:13px}}
+@media(max-width:560px){.ara{padding:16px 16px;gap:13px}}
 .empty-state a{color:var(--coure-clar)}
 
 /* ---------- els efectes del mediakit de Zenkai3D, amb el coure i el blau de casa ----------
@@ -330,11 +324,6 @@ section h2::after{transform-origin:left;animation:ratlla .9s cubic-bezier(.2,.7,
       <button class="btn" id="mes" hidden>Mostra'n més</button>
     </section>
 
-    <section>
-      <h2>Què vigila</h2>
-      <div class="vig" id="vig"></div>
-      <p class="foot" id="peu"></p>
-    </section>
   </div>
 
 </main>
@@ -444,7 +433,6 @@ function pinta() {
   pintaAra();
   pintaXifres();
   pintaLlista();
-  pintaVigila();
 }
 function mostra() { pinta(); }
 
@@ -626,31 +614,6 @@ function fila(e) {
   }
   r.appendChild(val);
   return r;
-}
-
-/* ---------- què vigila ---------- */
-function pintaVigila() {
-  var V = D.vigila && typeof D.vigila === "object" ? D.vigila : {}, G = $("vig");
-  var tens = noms(V.tensio), sent = noms(V.sentinelles), alarma = noms(V.alarma), sai = noms(V.sai);
-  G.replaceChildren();
-  function card(h, text, no) {
-    var c = el("div", "card" + (no ? " no" : ""));
-    c.appendChild(el("h3", "", h)); c.appendChild(el("p", "", text));
-    G.appendChild(c);
-  }
-  card("Talls de llum", "Sempre. Quan el Home Assistant s'apaga i torna a arrencar sense haver-se aturat bé, apunta el tall." +
-    (alarma.length || sai.length ? " Si el Home Assistant aguanta encès, també ho diu " + (sai.length ? "el SAI" : "l'alarma") + "." : ""));
-  card("Tensió", tens.length ? llista(tens) + ". Avisa quan surt de 207-253 V."
-    : "No hi ha cap aparell que mesuri la tensió. N'hi faria prou amb un endoll amb mesura (un Shelly, per exemple).", !tens.length);
-  card("Aparells de prova", sent.length ? llista(sent) + ". Si un queda sense resposta, potser ha saltat el seu circuit."
-    : "Cap. Es posen al camp «Solell llum: aparells de prova» del Home Assistant, un per circuit.", !sent.length);
-  card("Alarma i SAI", alarma.length || sai.length ? llista(alarma.concat(sai)) + "."
-    : "Ni l'alarma ni cap SAI no hi són connectats.", !(alarma.length || sai.length));
-
-  var peu = [], c = t(D.contacte);
-  if (c !== null) peu.push("El Home Assistant" + (V.ha ? " (" + V.ha + ")" : "") + " va parlar per última vegada " + quan(c) + ".");
-  peu.push("L'hora d'inici d'un tall que el Home Assistant veu en tornar a arrencar és la del seu últim senyal: pot ser fins a mig minut abans.");
-  $("peu").textContent = peu.join(" ");
 }
 
 /* ---------- memòria cau ---------- */
