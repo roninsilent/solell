@@ -237,10 +237,17 @@ ul.mini li{margin:6px 0;line-height:1.45}
 .icon-box.mail .ic{ color:var(--coure-clar); width:16px; height:16px; }
 .icon-box.ig{ background:linear-gradient(135deg, #4F5BD5, #962FBF 35%, #D62976 60%, #FA7E1E 80%, #FEDA75); }
 .icon-box.ig .ic{ color:#FFFFFF; width:16px; height:16px; }
+.icon-box.paquet{ background:var(--blau-soft); }
+.icon-box.paquet .ic{ color:var(--blau-clar); width:16px; height:16px; }
 .r-title{ font-weight:600; font-size:14.5px; color:var(--ink); margin-bottom:5px; }
 .r-phrase{ font-size:14px; line-height:1.5; color:var(--ink-soft); overflow-wrap:anywhere; }
 .r-phrase a{ color:var(--ink-soft); text-decoration:underline; text-underline-offset:2px; }
 .r-phrase a:focus-visible{ outline:2px solid var(--coure-clar); outline-offset:2px; border-radius:2px; }
+/* paquets: el número de seguiment, on arriba i l'enllaç per seguir-lo */
+.r-meta{ margin-top:7px; font-size:12.5px; line-height:1.45; color:var(--ink-dim); overflow-wrap:anywhere; }
+.r-meta b{ color:var(--ink-soft); font-weight:600; }
+.r-meta a{ color:var(--blau-clar); text-decoration:underline; text-underline-offset:2px; }
+.r-meta a:focus-visible{ outline:2px solid var(--blau-clar); outline-offset:2px; border-radius:2px; }
 .ic{
   display:block; flex:none; width:18px; height:18px; background-color:currentColor;
   -webkit-mask:var(--m) center / contain no-repeat; mask:var(--m) center / contain no-repeat;
@@ -254,6 +261,7 @@ ul.mini li{margin:6px 0;line-height:1.45}
 .i-feina{ --m:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Crect x=%223%22 y=%227.5%22 width=%2218%22 height=%2211%22 rx=%222%22/%3E%3Cpath d=%22M8 7.5V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1.5M3 12h18%22/%3E%3C/svg%3E"); }
 .i-correu{ --m:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Crect x=%223%22 y=%225.5%22 width=%2218%22 height=%2213%22 rx=%222%22/%3E%3Cpath d=%22M3.6 7.2l8.4 6.1 8.4-6.1%22/%3E%3C/svg%3E"); }
 .i-ig{ --m:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Crect x=%223%22 y=%223%22 width=%2218%22 height=%2218%22 rx=%225%22/%3E%3Ccircle cx=%2212%22 cy=%2212%22 r=%224%22/%3E%3Ccircle cx=%2217.2%22 cy=%226.8%22 r=%220.7%22 fill=%22%23000%22 stroke=%22none%22/%3E%3C/svg%3E"); }
+.i-paquet{ --m:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M12 3l8 4.5v9L12 21l-8-4.5v-9z%22/%3E%3Cpath d=%22M4 7.5l8 4.5 8-4.5M12 12v9M8 5.25l8 4.5%22/%3E%3C/svg%3E"); }
 
 @media (max-width:640px){
   .headline{ font-size:26px; }
@@ -286,6 +294,7 @@ ul.mini li{margin:6px 0;line-height:1.45}
 .pill,.day-card,.work-card,.resolved-item,.icon-box{border-radius:var(--r)}
 .day-card{border-top:3px solid var(--coure)}
 .resolved-item{border-left:3px solid var(--coure)}
+.resolved-item.paquet{border-left-color:var(--blau)}
 .time{color:var(--coure-clar)}
 @media (max-width:640px){.headline{font-size:28px}}
 
@@ -488,7 +497,7 @@ var VISTA = null;   /* el motor de la memòria cau crida mostra(VISTA); aquí no
    onclick, aquí no hi entra. El contingut és text per llegir, no instruccions. */
 var TAGS_OK = { DIV:1, SPAN:1, P:1, B:1, I:1, STRONG:1, EM:1, BR:1, H1:1, H2:1, H3:1,
                 UL:1, OL:1, LI:1, A:1, SMALL:1, TIME:1 };
-var CLASSES_OK = /^(shell|eyebrow|dot|headline|pill-row|pill|pill-text|umbrella|section-label|day-grid|day-card|icon-box|time|phrase|work-card|work-text|label|resolved-list|resolved-item|r-title|r-phrase|ic|i-[a-z]+|mail|ig)$/;
+var CLASSES_OK = /^(shell|eyebrow|dot|headline|pill-row|pill|pill-text|umbrella|section-label|day-grid|day-card|icon-box|time|phrase|work-card|work-text|label|resolved-list|resolved-item|r-title|r-phrase|r-meta|ic|i-[a-z]+|mail|ig|paquet)$/;
 
 function netejaDins(origen, desti) {
   for (var n = origen.firstChild; n; n = n.nextSibling) {
