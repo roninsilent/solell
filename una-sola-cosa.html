@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Una sola cosa</title>
+<meta name="description" content="Una tasca cada vegada, i un vas que es buida en 25 minuts mentre la fas.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+:root {
+  /* Una columna: la tarea actual como titular, debajo el vaso graduado y el reloj, la cola plegada al final */
+  --paper: #edf0f2;
+  --surface: #f8fafb;
+  --ink: #16212b;
+  --muted: #5a6875;
+  --line: #c3ccd4;
+  --water: #1f6fc5;
+  --water-deep: #134f93;
+  --on-water: #ffffff;
+  --glass: #7f909f;
+  --font-display: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0f1519;
+    --surface: #172027;
+    --ink: #e4eaef;
+    --muted: #93a2af;
+    --line: #2c3943;
+    --water: #4b92e6;
+    --water-deep: #2a62a8;
+    --on-water: #06121f;
+    --glass: #6f8191;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0f1519;
+  --surface: #172027;
+  --ink: #e4eaef;
+  --muted: #93a2af;
+  --line: #2c3943;
+  --water: #4b92e6;
+  --water-deep: #2a62a8;
+  --on-water: #06121f;
+  --glass: #6f8191;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; margin: 0; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 17px/1.45 var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 18px 18px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.back {
+  font: 700 13px/1 var(--font-body);
+  color: var(--muted);
+  text-decoration: none;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 11px;
+  flex: none;
+}
+.back:hover { color: var(--ink); border-color: var(--glass); }
+.drive { display: flex; flex-direction: column; gap: 10px; }
+.drive-actions { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.mark {
+  font-family: var(--font-display);
+  font-weight: 750;
+  font-variation-settings: "wdth" 75;
+  font-size: 19px;
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+.today {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+.today strong {
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 16px;
+}
+
+.now { display: flex; flex-direction: column; gap: 8px; min-height: 150px; }
+.eyebrow {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  font: 600 12px/1 var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+.task {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 680;
+  font-variation-settings: "wdth" 82, "opsz" 96;
+  font-size: clamp(31px, 8.6vw, 48px);
+  line-height: 1.03;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+.task.empty { color: var(--muted); }
+.note { margin: 0; color: var(--muted); font-size: 14px; }
+.note[hidden] { display: none; }
+
+.timer {
+  display: grid;
+  grid-template-columns: minmax(140px, 180px) 1fr;
+  gap: 18px;
+  align-items: end;
+}
+#glass {
+  width: 100%;
+  aspect-ratio: 180 / 236;
+  display: block;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.readout { display: flex; flex-direction: column; gap: 6px; padding-bottom: 6px; min-width: 0; }
+.mode {
+  margin: 0;
+  font: 600 12px/1 var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--water);
+}
+.clock {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(42px, 12.5vw, 62px);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+.hint { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.35; }
+.chips { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+.chips-label { flex-basis: 100%; font-size: 13px; color: var(--muted); }
+.chip {
+  font: 600 13px/1 var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  padding: 8px 10px;
+  min-height: 34px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+.chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.chip:disabled { cursor: not-allowed; opacity: 0.5; }
+.chip[aria-pressed="true"]:disabled { opacity: 0.8; }
+
+.controls { display: grid; grid-template-columns: 1.55fr 1fr 1fr; gap: 10px; }
+.btn {
+  font: 700 16px/1.1 var(--font-body);
+  padding: 13px 12px;
+  min-height: 50px;
+  border-radius: 12px;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.btn:hover:not(:disabled) { border-color: var(--glass); }
+.btn.primary { background: var(--water); border-color: var(--water); color: var(--on-water); }
+.btn.primary:hover:not(:disabled) { background: var(--water-deep); border-color: var(--water-deep); color: #fff; }
+.btn:disabled { opacity: 0.42; cursor: not-allowed; }
+.linkbtn {
+  align-self: flex-start;
+  font: 400 14px/1.2 var(--font-body);
+  color: var(--muted);
+  background: none;
+  border: 0;
+  padding: 6px 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.linkbtn[hidden] { display: none; }
+.actions { display: flex; flex-direction: column; gap: 6px; }
+
+.add { display: flex; gap: 10px; }
+.add input {
+  flex: 1;
+  min-width: 0;
+  font: 400 17px/1.2 var(--font-body);
+  padding: 13px 14px;
+  min-height: 50px;
+  border-radius: 12px;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+}
+.add input::placeholder { color: var(--muted); }
+
+.drawers { display: flex; flex-direction: column; }
+details { border-top: 1px solid var(--line); }
+details:last-child { border-bottom: 1px solid var(--line); }
+summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 15px 2px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-weight: 700;
+}
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; font: 600 18px/1 var(--font-mono); color: var(--muted); }
+details[open] summary::after { content: "−"; }
+summary .count { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--muted); font-weight: 400; margin-left: auto; margin-right: 14px; }
+ol, ul { list-style: none; margin: 0 0 12px; padding: 0; }
+li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 2px;
+  border-bottom: 1px dashed var(--line);
+}
+li:last-child { border-bottom: 0; }
+.li-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.li-time { font: 400 13px/1 var(--font-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.tag {
+  font: 600 10px/1 var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 3px 5px;
+  margin-left: 6px;
+  vertical-align: 2px;
+}
+.mini {
+  font: 700 13px/1 var(--font-body);
+  padding: 8px 10px;
+  min-height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  flex: none;
+}
+.empty-list { color: var(--muted); font-size: 14px; padding: 4px 2px 14px; margin: 0; }
+
+.sync { margin: 0; color: var(--muted); font-size: 13px; }
+
+:focus-visible { outline: 3px solid var(--water); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (max-width: 360px) {
+  .timer { grid-template-columns: 130px 1fr; gap: 12px; }
+  .controls { grid-template-columns: 1fr 1fr; }
+  .controls .primary { grid-column: 1 / -1; }
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <div class="brand">
+      <a class="back" href="index.html">Menú</a>
+      <p class="mark">Una sola cosa</p>
+    </div>
+    <p class="today"><strong id="todayCount">0</strong> hechas hoy</p>
+  </header>
+
+  <section class="now" aria-live="polite">
+    <p class="eyebrow"><span>Ahora</span><span id="behind"></span></p>
+    <h1 id="current" class="task">Contestar el correo que llevas tres días posponiendo</h1>
+    <p id="exNote" class="note">Son tareas de ejemplo: se borran en cuanto añades la primera tuya.</p>
+    <p id="emptyNote" class="note" hidden>Escribe abajo lo siguiente que toca.</p>
+  </section>
+
+  <section class="timer" aria-label="Temporizador">
+    <canvas id="glass" aria-hidden="true"></canvas>
+    <div class="readout">
+      <p class="mode" id="mode">Foco</p>
+      <p class="clock" id="clock" role="timer" aria-live="off">25:00</p>
+      <p class="hint" id="hint">El vaso se vacía en 25 minutos.</p>
+      <div class="chips" role="group" aria-label="Duración del vaso">
+        <span class="chips-label">Minutos por vaso</span>
+        <button class="chip" type="button" data-min="15" aria-pressed="false">15</button>
+        <button class="chip" type="button" data-min="25" aria-pressed="true">25</button>
+        <button class="chip" type="button" data-min="50" aria-pressed="false">50</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="actions">
+    <div class="controls">
+      <button id="primary" class="btn primary" type="button">Empezar el vaso</button>
+      <button id="done" class="btn" type="button">Hecha</button>
+      <button id="later" class="btn" type="button">Después</button>
+    </div>
+    <button id="reset" class="linkbtn" type="button" hidden>Reiniciar el vaso</button>
+  </div>
+
+  <form id="addForm" class="add" autocomplete="off">
+    <label for="newTask" class="sr">Añadir a la cola</label>
+    <input id="newTask" name="newTask" type="text" maxlength="200" placeholder="Lo siguiente que tienes que hacer…" enterkeyhint="done">
+    <button type="submit" class="btn" id="addBtn">Añadir</button>
+  </form>
+
+  <div class="drawers">
+    <details id="queueBox">
+      <summary>En cola <span class="count" id="queueCount">2</span></summary>
+      <ol id="queueList"></ol>
+    </details>
+    <details id="doneBox">
+      <summary>Hechas hoy <span class="count" id="doneCount">0</span></summary>
+      <ul id="doneList"></ul>
+    </details>
+  </div>
+
+  <section class="drive" aria-label="Guardado">
+    <p class="sync" id="sync" aria-live="polite">Se guarda en este navegador.</p>
+    <div class="drive-actions">
+      <button class="btn" id="driveBtn" type="button" hidden>Guardar en Google Drive</button>
+      <button class="linkbtn" id="driveOut" type="button" hidden>Cerrar sesión de Google</button>
+    </div>
+    <form class="add" id="driveSetup" autocomplete="off" hidden>
+      <label for="driveCid" class="sr">Client ID de Google</label>
+      <input id="driveCid" type="text" placeholder="xxxxx.apps.googleusercontent.com" spellcheck="false" autocapitalize="off">
+      <button class="btn" type="submit">Guardar</button>
+    </form>
+  </section>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  var LS_KEY = 'una-sola-cosa:v1';
+  var CLIENT = Math.random().toString(36).slice(2, 10);
+  var MAX_DONE = 300;
+  var DURATIONS = [15, 25, 50];
+  var BREAK_MIN = 5;
+  var $ = function (id) { return document.getElementById(id); };
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function now() { return Date.now(); }
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+  function examples() {
+    return [
+      { id: 'ex1', text: 'Contestar el correo que llevas tres días posponiendo', ex: true },
+      { id: 'ex2', text: 'Pedir cita para pasar la ITV', ex: true },
+      { id: 'ex3', text: 'Leer diez páginas del libro de la mesilla', ex: true }
+    ];
+  }
+  function freshTimer(mode, min) {
+    return { mode: mode, status: 'idle', endsAt: 0, remaining: min * 60000, total: min * 60000 };
+  }
+  function defaultState() {
+    return { v: 1, updatedAt: 0, focusMin: 25, tasks: examples(), done: [], timer: freshTimer('focus', 25) };
+  }
+
+  function cleanText(s) { return String(s).replace(/\s+/g, ' ').trim().slice(0, 200); }
+
+  function sanitize(s) {
+    if (!s || typeof s !== 'object') return null;
+    var out = {
+      v: 1,
+      updatedAt: Number(s.updatedAt) || 0,
+      focusMin: DURATIONS.indexOf(s.focusMin) >= 0 ? s.focusMin : 25,
+      tasks: [],
+      done: [],
+      timer: null
+    };
+    if (Array.isArray(s.tasks)) {
+      out.tasks = s.tasks.filter(function (t) { return t && typeof t.text === 'string' && cleanText(t.text); })
+        .slice(0, 500)
+        .map(function (t) { return { id: String(t.id || uid()).slice(0, 40), text: cleanText(t.text), ex: !!t.ex }; });
+    } else {
+      out.tasks = examples();
+    }
+    if (Array.isArray(s.done)) {
+      out.done = s.done.filter(function (t) { return t && typeof t.text === 'string'; })
+        .slice(-MAX_DONE)
+        .map(function (t) { return { id: String(t.id || uid()).slice(0, 40), text: cleanText(t.text), at: Number(t.at) || 0 }; });
+    }
+    var t = s.timer;
+    if (t && typeof t === 'object' && (t.mode === 'focus' || t.mode === 'break') &&
+        ['idle', 'running', 'paused', 'finished'].indexOf(t.status) >= 0) {
+      var total = Math.max(60000, Math.min(120 * 60000, Number(t.total) || out.focusMin * 60000));
+      out.timer = {
+        mode: t.mode,
+        status: t.status,
+        endsAt: Number(t.endsAt) || 0,
+        remaining: Math.max(0, Math.min(total, Number(t.remaining) || 0)),
+        total: total
+      };
+    } else {
+      out.timer = freshTimer('focus', out.focusMin);
+    }
+    return out;
+  }
+
+  /* ---------- guardado local ---------- */
+  var localOk = (function () {
+    try { localStorage.setItem(LS_KEY + ':t', '1'); localStorage.removeItem(LS_KEY + ':t'); return true; }
+    catch (e) { return false; }
+  })();
+  function loadLocal() {
+    if (!localOk) return null;
+    try { var s = localStorage.getItem(LS_KEY); return s ? JSON.parse(s) : null; } catch (e) { return null; }
+  }
+  function saveLocal(st) {
+    if (!localOk) return;
+    try { localStorage.setItem(LS_KEY, JSON.stringify(st)); } catch (e) { /* lleno o bloqueado */ }
+  }
+
+  var state = sanitize(loadLocal()) || defaultState();
+
+  function commit() {
+    /* siempre por delante de lo último visto, aunque el otro dispositivo lleve el reloj adelantado */
+    state.updatedAt = Math.max(now(), (state.updatedAt || 0) + 1);
+    saveLocal(state);
+    scheduleRemote();
+    render();
+  }
+
+  /* ---------- temporizador ---------- */
+  function leftMs() {
+    var t = state.timer;
+    if (t.status === 'running') return Math.max(0, t.endsAt - now());
+    if (t.status === 'finished') return 0;
+    return t.remaining;
+  }
+  function fraction() {
+    var t = state.timer;
+    var f = Math.max(0, Math.min(1, leftMs() / (t.total || 1)));
+    return t.mode === 'focus' ? f : 1 - f;
+  }
+  function start() {
+    var t = state.timer;
+    if (t.status === 'idle' || t.status === 'paused') {
+      t.endsAt = now() + t.remaining;
+      t.status = 'running';
+    }
+    commit();
+    loop();
+  }
+  function pause() {
+    var t = state.timer;
+    if (t.status !== 'running') return;
+    t.remaining = Math.max(0, t.endsAt - now());
+    t.status = 'paused';
+    commit();
+  }
+  function startBreak() { state.timer = freshTimer('break', BREAK_MIN); start(); }
+  function newFocus(autostart) {
+    state.timer = freshTimer('focus', state.focusMin);
+    if (autostart) start(); else commit();
+  }
+  function checkEnd(fromLoad) {
+    var t = state.timer;
+    if (t.status === 'running' && t.endsAt <= now()) {
+      var mode = t.mode;
+      if (mode === 'focus') { t.status = 'finished'; t.remaining = 0; }
+      else { state.timer = freshTimer('focus', state.focusMin); }
+      if (!fromLoad) chime(mode);
+      commit();
+    }
+  }
+
+  function primaryAction() {
+    ensureAudio();
+    var t = state.timer;
+    if (t.status === 'running') pause();
+    else if (t.status === 'finished') startBreak();
+    else start();
+  }
+
+  /* ---------- sonido ---------- */
+  var actx = null;
+  function ensureAudio() {
+    try {
+      if (!actx) {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) actx = new AC();
+      }
+      if (actx && actx.state === 'suspended') actx.resume();
+    } catch (e) { actx = null; }
+  }
+  function chime(mode) {
+    try { if (navigator.vibrate) navigator.vibrate([120, 80, 120]); } catch (e) {}
+    if (!actx) return;
+    try {
+      var t0 = actx.currentTime + 0.02;
+      var notes = mode === 'focus' ? [659.25, 523.25, 392.0] : [392.0, 523.25, 659.25];
+      notes.forEach(function (f, i) {
+        var o = actx.createOscillator();
+        var g = actx.createGain();
+        var at = t0 + i * 0.22;
+        o.type = 'sine';
+        o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, at);
+        g.gain.exponentialRampToValueAtTime(0.22, at + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, at + 1.2);
+        o.connect(g);
+        g.connect(actx.destination);
+        o.start(at);
+        o.stop(at + 1.3);
+      });
+    } catch (e) {}
+  }
+
+  /* ---------- tareas ---------- */
+  function addTask(raw) {
+    var text = cleanText(raw);
+    if (!text) return false;
+    var hadCurrent = state.tasks.length > 0 && !state.tasks[0].ex;
+    if (state.tasks.some(function (t) { return t.ex; })) {
+      state.tasks = state.tasks.filter(function (t) { return !t.ex; });
+    }
+    state.tasks.push({ id: uid(), text: text });
+    commit();
+    if (!hadCurrent) swapAnim();
+    return true;
+  }
+  function markDone() {
+    var t = state.tasks.shift();
+    if (!t) return;
+    state.done.push({ id: t.id, text: t.text, at: now() });
+    if (state.done.length > MAX_DONE) state.done = state.done.slice(-MAX_DONE);
+    commit();
+    swapAnim();
+  }
+  function later() {
+    if (state.tasks.length < 2) return;
+    state.tasks.push(state.tasks.shift());
+    commit();
+    swapAnim();
+  }
+  function moveToFront(id) {
+    var i = state.tasks.findIndex(function (t) { return t.id === id; });
+    if (i <= 0) return;
+    var t = state.tasks.splice(i, 1)[0];
+    state.tasks.unshift(t);
+    commit();
+    swapAnim();
+  }
+  function removeTask(id) {
+    state.tasks = state.tasks.filter(function (t) { return t.id !== id; });
+    commit();
+  }
+  function restore(id) {
+    var i = state.done.findIndex(function (t) { return t.id === id; });
+    if (i < 0) return;
+    var t = state.done.splice(i, 1)[0];
+    state.tasks.unshift({ id: t.id, text: t.text });
+    commit();
+    swapAnim();
+  }
+  function swapAnim() {
+    if (reduceMotion) return;
+    var el = $('current');
+    if (el.animate) {
+      el.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }],
+        { duration: 280, easing: 'cubic-bezier(.2,.7,.2,1)' });
+    }
+  }
+  function todayDone() {
+    var d = new Date(); d.setHours(0, 0, 0, 0);
+    var from = d.getTime();
+    return state.done.filter(function (t) { return t.at >= from; });
+  }
+
+  /* ---------- pintar ---------- */
+  function fmt(ms) {
+    var s = Math.ceil(ms / 1000);
+    var m = Math.floor(s / 60);
+    var r = s % 60;
+    return (m < 10 ? '0' : '') + m + ':' + (r < 10 ? '0' : '') + r;
+  }
+  function button(label, cls, onClick, aria) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = cls;
+    b.textContent = label;
+    if (aria) b.setAttribute('aria-label', aria);
+    b.addEventListener('click', onClick);
+    return b;
+  }
+
+  function render() {
+    var cur = state.tasks[0];
+    var cEl = $('current');
+    cEl.textContent = cur ? cur.text : 'Nada en la cola.';
+    cEl.classList.toggle('empty', !cur);
+    $('emptyNote').hidden = !!cur;
+    $('exNote').hidden = !state.tasks.some(function (t) { return t.ex; });
+    var behind = Math.max(0, state.tasks.length - 1);
+    $('behind').textContent = behind === 0 ? '' : (behind === 1 ? '1 detrás' : behind + ' detrás');
+
+    // botones
+    var t = state.timer;
+    var p = $('primary');
+    var label;
+    if (t.status === 'running') label = 'Pausar';
+    else if (t.status === 'finished') label = 'Descanso de ' + BREAK_MIN + ' min';
+    else if (t.status === 'paused') label = t.mode === 'break' ? 'Seguir el descanso' : 'Seguir';
+    else label = 'Empezar el vaso';
+    p.textContent = label;
+    $('done').disabled = !cur;
+    $('later').disabled = state.tasks.length < 2;
+
+    var reset = $('reset');
+    if (t.mode === 'break') { reset.hidden = false; reset.textContent = 'Saltar el descanso'; }
+    else if (t.status === 'finished') { reset.hidden = false; reset.textContent = 'Llenar otro vaso sin descansar'; }
+    else if (t.status !== 'idle') { reset.hidden = false; reset.textContent = 'Reiniciar el vaso'; }
+    else reset.hidden = true;
+
+    // modo y pista
+    $('mode').textContent = t.mode === 'focus' ? 'Foco' : 'Descanso';
+    var hint;
+    if (t.mode === 'focus') {
+      if (t.status === 'idle') hint = 'El vaso se vacía en ' + state.focusMin + ' minutos.';
+      else if (t.status === 'running') hint = 'Solo esto hasta que se vacíe.';
+      else if (t.status === 'paused') hint = 'En pausa. El agua espera.';
+      else hint = 'Vaso vacío. Toma cinco minutos o llena otro.';
+    } else {
+      hint = t.status === 'paused' ? 'Descanso en pausa.' : 'Descanso: el vaso se vuelve a llenar.';
+    }
+    $('hint').textContent = hint;
+
+    var chipsLocked = !(t.mode === 'focus' && t.status === 'idle');
+    Array.prototype.forEach.call(document.querySelectorAll('.chip'), function (c) {
+      var m = Number(c.getAttribute('data-min'));
+      c.setAttribute('aria-pressed', String(m === state.focusMin));
+      c.disabled = chipsLocked;
+    });
+
+    // cola
+    var ql = $('queueList');
+    ql.textContent = '';
+    var rest = state.tasks.slice(1);
+    $('queueCount').textContent = String(rest.length);
+    if (!rest.length) {
+      var e = document.createElement('p');
+      e.className = 'empty-list';
+      e.textContent = cur ? 'No hay nada detrás de la tarea actual.' : 'La cola está vacía.';
+      ql.appendChild(e);
+    }
+    rest.forEach(function (task) {
+      var li = document.createElement('li');
+      var span = document.createElement('span');
+      span.className = 'li-text';
+      span.textContent = task.text;
+      if (task.ex) {
+        var tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.textContent = 'ejemplo';
+        span.appendChild(tag);
+      }
+      li.appendChild(span);
+      li.appendChild(button('Ahora', 'mini', function () { moveToFront(task.id); }, 'Hacer ahora: ' + task.text));
+      li.appendChild(button('✕', 'mini', function () { removeTask(task.id); }, 'Quitar de la cola: ' + task.text));
+      ql.appendChild(li);
+    });
+
+    // hechas hoy
+    var td = todayDone();
+    $('todayCount').textContent = String(td.length);
+    $('doneCount').textContent = String(td.length);
+    var dl = $('doneList');
+    dl.textContent = '';
+    if (!td.length) {
+      var e2 = document.createElement('p');
+      e2.className = 'empty-list';
+      e2.textContent = 'Todavía ninguna. Pulsa «Hecha» cuando acabes la de arriba.';
+      dl.appendChild(e2);
+    }
+    td.slice().reverse().forEach(function (task) {
+      var li = document.createElement('li');
+      var time = document.createElement('span');
+      time.className = 'li-time';
+      var d = new Date(task.at);
+      time.textContent = (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+      var span = document.createElement('span');
+      span.className = 'li-text';
+      span.textContent = task.text;
+      li.appendChild(time);
+      li.appendChild(span);
+      li.appendChild(button('Desmarcar', 'mini', function () { restore(task.id); }, 'Devolver a la cola: ' + task.text));
+      dl.appendChild(li);
+    });
+
+    tick(performance.now());
+  }
+
+  /* ---------- el vaso ---------- */
+  var cv = $('glass');
+  var ctx = cv.getContext('2d');
+  var W = 180, H = 236;
+  function sizeCanvas() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 3);
+    var w = cv.clientWidth || 180;
+    var h = cv.clientHeight || Math.round(w * 236 / 180);
+    cv.width = Math.round(w * dpr);
+    cv.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    W = w; H = h;
+  }
+  function tok(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+  var lastClock = '';
+  function tick(ts) {
+    var c = fmt(leftMs());
+    if (c !== lastClock) { $('clock').textContent = c; lastClock = c; }
+    drawGlass(ts || 0);
+  }
+
+  function drawGlass(ts) {
+    var w = W, h = H;
+    ctx.clearRect(0, 0, w, h);
+    var cGlass = tok('--glass'), cWater = tok('--water'), cDeep = tok('--water-deep'), cMuted = tok('--muted');
+
+    var labelW = 26;
+    var top = 6, bot = h - 4;
+    var topW = w - 4 - labelW, botW = topW * 0.72;
+    var cx = 2 + topW / 2;
+    var inset = 5, floor = Math.max(10, h * 0.05);
+    var itop = top + 12, ibot = bot - floor;
+    var slope = (topW - botW) / 2 / (bot - top);
+    function xOL(y) { return cx - topW / 2 + slope * (y - top); }
+    function xOR(y) { return cx + topW / 2 - slope * (y - top); }
+    function xL(y) { return xOL(y) + inset; }
+    function xR(y) { return xOR(y) - inset; }
+
+    // nivel por área: un vaso cónico se vacía más deprisa por arriba
+    var Hh = ibot - itop;
+    var wb = xR(ibot) - xL(ibot), wt = xR(itop) - xL(itop);
+    var k = (wt - wb) / Hh;
+    var Atot = wb * Hh + k * Hh * Hh / 2;
+    function levelFor(f) {
+      var A = f * Atot;
+      var yp = k > 1e-6 ? (-wb + Math.sqrt(wb * wb + 2 * k * A)) / k : A / wb;
+      return ibot - yp;
+    }
+
+    var t = state.timer;
+    var f = fraction();
+    var running = t.status === 'running';
+
+    // agua
+    if (f > 0.002) {
+      var ly = levelFor(f);
+      var amp = (running && !reduceMotion) ? 2.4 * Math.min(1, (ibot - ly) / 12) : 0;
+      var phase = ts / 520;
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(xL(top), top);
+      ctx.lineTo(xR(top), top);
+      ctx.lineTo(xR(ibot), ibot);
+      ctx.lineTo(xL(ibot), ibot);
+      ctx.closePath();
+      ctx.clip();
+      var grad = ctx.createLinearGradient(0, ly, 0, ibot);
+      grad.addColorStop(0, cWater);
+      grad.addColorStop(1, cDeep);
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      var N = 28, x0 = xL(ly) - 4, x1 = xR(ly) + 4, i, x, y;
+      for (i = 0; i <= N; i++) {
+        x = x0 + (x1 - x0) * i / N;
+        y = ly + amp * Math.sin(i / N * Math.PI * 3 + phase);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.lineTo(xR(ibot) + 4, ibot + 1);
+      ctx.lineTo(xL(ibot) - 4, ibot + 1);
+      ctx.closePath();
+      ctx.fill();
+      // línea de superficie
+      ctx.strokeStyle = 'rgba(255,255,255,0.45)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (i = 0; i <= N; i++) {
+        x = x0 + (x1 - x0) * i / N;
+        y = ly + amp * Math.sin(i / N * Math.PI * 3 + phase) + 1;
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // base gruesa del vaso
+    ctx.fillStyle = cGlass;
+    ctx.globalAlpha = 0.22;
+    ctx.beginPath();
+    ctx.moveTo(xOL(ibot), ibot);
+    ctx.lineTo(xOR(ibot), ibot);
+    ctx.lineTo(xOR(bot), bot);
+    ctx.lineTo(xOL(bot), bot);
+    ctx.closePath();
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // contorno
+    ctx.strokeStyle = cGlass;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(xOL(top), top);
+    ctx.lineTo(xOL(bot), bot);
+    ctx.lineTo(xOR(bot), bot);
+    ctx.lineTo(xOR(top), top);
+    ctx.stroke();
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(xL(top + 2), top + 2);
+    ctx.lineTo(xL(ibot), ibot);
+    ctx.lineTo(xR(ibot), ibot);
+    ctx.lineTo(xR(top + 2), top + 2);
+    ctx.globalAlpha = 0.55;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    // brillo
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(xL(top + 24) + 7, top + 24);
+    ctx.lineTo(xL(top + 24 + Hh * 0.45) + 7, top + 24 + Hh * 0.45);
+    ctx.stroke();
+
+    // graduación en minutos restantes
+    var T = Math.round(t.total / 60000);
+    var major = T <= 10 ? 1 : (T <= 30 ? 5 : 10);
+    var minor = T <= 30 ? 1 : 5;
+    ctx.strokeStyle = cGlass;
+    ctx.fillStyle = cMuted;
+    ctx.font = '600 10px "JetBrains Mono", ui-monospace, monospace';
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
+    for (var m = minor; m <= T; m += minor) {
+      var ff = t.mode === 'focus' ? m / T : 1 - m / T;
+      var yy = levelFor(ff);
+      var isMajor = m % major === 0;
+      ctx.lineWidth = isMajor ? 1.5 : 1;
+      ctx.beginPath();
+      ctx.moveTo(xR(yy) - (isMajor ? 11 : 5), yy);
+      ctx.lineTo(xR(yy), yy);
+      ctx.stroke();
+      if (isMajor && t.mode === 'focus') ctx.fillText(String(m), xOR(yy) + 5, yy);
+    }
+    if (t.mode === 'focus') {
+      ctx.font = '400 9px "JetBrains Mono", ui-monospace, monospace';
+      ctx.fillText('min', xOR(itop) + 5, top + 1);
+    }
+  }
+
+  var raf = 0, lastFrame = 0;
+  function loop() {
+    if (raf) return;
+    var step = function (ts) {
+      raf = 0;
+      checkEnd(false);
+      if (ts - lastFrame > 45) { lastFrame = ts; tick(ts); }
+      if (state.timer.status === 'running' && !document.hidden) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+  }
+
+  /* ---------- guardado en Google Drive ----------
+     Usa el mismo Client ID y la misma sesión de Google que las otras apps de
+     Solell (las mismas claves de este navegador): si ya has entrado en otra, no
+     vuelve a pedir nada. Con el permiso drive.file solo ve los archivos que crean
+     estas apps. La cola queda en un JSON legible, solell-una-sola-cosa.json, en
+     la raíz del Drive. Si gana el último que guarda: al volver a la pestaña se
+     relee el Drive antes de escribir. */
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+
+  var CID_KEY = 'g_client_id';
+  var ALLOWED_EMAIL = 'roninsilent@gmail.com';
+  var TOK_KEY = 'g_token_' + ALLOWED_EMAIL;
+  var GSCOPE = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile';
+  var DRIVE_NAME = 'solell-una-sola-cosa.json';
+  var FILEID_KEY = LS_KEY + ':drive-id';
+  var API = 'https://www.googleapis.com/drive/v3/files';
+  var UPLOAD = 'https://www.googleapis.com/upload/drive/v3/files';
+
+  var gToken = null, gClient = null, fileId = lsGet(FILEID_KEY);
+  var driveOn = false, dirty = false, saving = false, pulling = false, pendingSave = false;
+  var saveTimer = 0, busyTimer = 0, lastPull = 0, lastSaved = 0, retries404 = 0;
+
+  function setSync(msg) { $('sync').textContent = msg; }
+  function hora(ts) {
+    var d = new Date(ts);
+    return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
+  }
+  function driveUi(mode, msg) {
+    var btn = $('driveBtn');
+    $('driveSetup').hidden = mode !== 'setup';
+    $('driveOut').hidden = mode !== 'on';
+    btn.hidden = !(mode === 'login' || mode === 'expired');
+    btn.textContent = mode === 'expired' ? 'Volver a entrar en Google' : 'Guardar en Google Drive';
+    var local = localOk ? 'Se guarda solo en este navegador.' : 'Ahora mismo no se guarda en ningún sitio.';
+    var t;
+    if (mode === 'setup') t = msg || local + ' Para guardarlo en el Drive, pega el Client ID de Google (el mismo de las otras apps de Solell).';
+    else if (mode === 'login') t = msg || local;
+    else if (mode === 'expired') t = msg || 'La sesión de Google ha caducado. Los cambios esperan en este navegador hasta que vuelvas a entrar.';
+    else if (mode === 'busy') t = msg || 'Conectando con el Drive…';
+    else t = msg || ('Se guarda en tu Drive, en ' + DRIVE_NAME + (lastSaved ? ' · último guardado a las ' + hora(lastSaved) : '') + '.');
+    setSync(t);
+  }
+
+  /* la sesión de Google, compartida con las otras apps */
+  function tokDesa(resp, u) {
+    lsSet(TOK_KEY, JSON.stringify({
+      t: resp.access_token,
+      fins: Date.now() + (Math.max(60, (+resp.expires_in || 3600)) - 120) * 1000,
+      scope: resp.scope || GSCOPE,
+      email: (u && u.email) || '',
+      foto: (u && u.picture) || ''
+    }));
+  }
+  function tokDesat() {
+    try {
+      var d = JSON.parse(lsGet(TOK_KEY) || 'null');
+      if (!d || !d.t || !(d.fins > Date.now())) return null;
+      if ((d.email || '').trim().toLowerCase() !== ALLOWED_EMAIL) return null;
+      var te = String(d.scope || '').split(/\s+/);
+      var falta = GSCOPE.split(/\s+/).filter(function (s) { return te.indexOf(s) < 0; });
+      return falta.length ? null : d;
+    } catch (e) { return null; }
+  }
+  function tokOblida() { lsDel(TOK_KEY); }
+  function caducada() { gToken = null; driveOn = false; driveUi('expired'); }
+
+  function driveFetch(url, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({}, opts.headers, { Authorization: 'Bearer ' + gToken });
+    return fetch(url, opts).then(function (r) {
+      if (r.status === 401) { tokOblida(); throw { code: 'g_401' }; }
+      if (r.status === 404) throw { code: 'g_404' };
+      if (!r.ok) throw { code: 'g_http_' + r.status };
+      return r;
+    });
+  }
+  function forgetFile() { fileId = null; lsDel(FILEID_KEY); }
+  function ensureFile() {
+    if (fileId) return Promise.resolve(fileId);
+    var q = encodeURIComponent("name='" + DRIVE_NAME + "' and trashed=false");
+    return driveFetch(API + '?q=' + q + '&fields=files(id,modifiedTime)&orderBy=' + encodeURIComponent('modifiedTime desc') + '&spaces=drive')
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d.files && d.files.length) return d.files[0].id;
+        var b = 'solellboundary';
+        var body = '--' + b + '\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n' +
+          JSON.stringify({ name: DRIVE_NAME, mimeType: 'application/json' }) +
+          '\r\n--' + b + '\r\nContent-Type: application/json\r\n\r\n{}\r\n--' + b + '--';
+        return driveFetch(UPLOAD + '?uploadType=multipart&fields=id', {
+          method: 'POST', headers: { 'Content-Type': 'multipart/related; boundary=' + b }, body: body
+        }).then(function (r) { return r.json(); }).then(function (f) { return f.id; });
+      })
+      .then(function (id) {
+        if (!id) throw { code: 'g_sin_id' };
+        fileId = id;
+        lsSet(FILEID_KEY, id);
+        return id;
+      });
+  }
+
+  /* leer: si el Drive tiene algo más nuevo, manda el Drive; si lo nuevo es de aquí, se sube */
+  function drivePull(retried) {
+    return ensureFile()
+      .then(function (id) { return driveFetch(API + '/' + encodeURIComponent(id) + '?alt=media'); })
+      .then(function (r) { return r.text(); })
+      .then(function (t) {
+        var d = null;
+        try { d = t ? JSON.parse(t) : null; } catch (e) { d = null; }
+        var remote = sanitize(d && d.state);
+        lastPull = now();
+        if (remote && remote.updatedAt > state.updatedAt) {
+          state = remote;
+          saveLocal(state);
+          if (d.desat) lastSaved = Date.parse(d.desat) || lastSaved;
+          checkEnd(true);
+          render();
+          if (state.timer.status === 'running') loop();
+        } else if (state.updatedAt > (remote ? remote.updatedAt : 0)) {
+          dirty = true;
+        }
+      })
+      .catch(function (e) {
+        if (e && e.code === 'g_404' && !retried) { forgetFile(); return drivePull(true); }
+        throw e;
+      });
+  }
+
+  /* escribir: una escritura cada vez, agrupando los cambios seguidos */
+  function payload() {
+    return JSON.stringify({ app: 'una-sola-cosa', versio: 1, desat: new Date().toISOString(), state: state }, null, 2);
+  }
+  function scheduleRemote() {
+    dirty = true;
+    if (!driveOn) return;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(flushRemote, 1200);
+  }
+  function flushRemote() {
+    clearTimeout(saveTimer);
+    if (!driveOn || !dirty || pulling) return;
+    if (saving) { pendingSave = true; return; }
+    if (!tokDesat()) { caducada(); return; }
+    saving = true;
+    pendingSave = false;
+    dirty = false;
+    var body = payload();
+    ensureFile()
+      .then(function (id) {
+        return driveFetch(UPLOAD + '/' + encodeURIComponent(id) + '?uploadType=media&fields=id', {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json; charset=UTF-8' }, body: body
+        });
+      })
+      .then(function () { lastSaved = now(); retries404 = 0; if (driveOn) driveUi('on'); })
+      .catch(function (e) {
+        dirty = true;
+        if (e && e.code === 'g_404' && retries404 < 2) { retries404++; forgetFile(); pendingSave = true; return; }
+        driveFail(e);
+      })
+      .then(function () { saving = false; if (pendingSave && driveOn) flushRemote(); });
+  }
+  function driveFail(e) {
+    if (e && e.code === 'g_401') { caducada(); return; }
+    if (driveOn) driveUi('on', 'No he podido guardar en el Drive ahora mismo. Lo reintento con el próximo cambio; mientras, queda en este navegador.');
+    else driveUi('login', 'No he podido leer el Drive ahora mismo. Vuelve a intentarlo en un rato.');
+  }
+  function connect() {
+    driveOn = true;
+    pulling = true;
+    driveUi('busy', 'Leyendo tu Drive…');
+    drivePull().then(function () {
+      pulling = false;
+      if (!driveOn) return;
+      driveUi('on');
+      if (dirty) flushRemote();
+    }, function (e) {
+      pulling = false;
+      driveOn = false;
+      driveFail(e);
+    });
+  }
+  function driveRefresh() {
+    if (!driveOn || saving || pulling) return;
+    if (!tokDesat()) { caducada(); return; }
+    if (dirty) { flushRemote(); return; }
+    if (now() - lastPull < 15000) return;
+    pulling = true;
+    drivePull().then(function () {
+      pulling = false;
+      if (dirty) flushRemote();
+    }, function (e) {
+      pulling = false;
+      driveFail(e);
+    });
+  }
+
+  /* entrar en Google */
+  function waitForGis(cb, tries) {
+    tries = tries || 0;
+    if (window.google && google.accounts && google.accounts.oauth2) cb();
+    else if (tries < 40) setTimeout(function () { waitForGis(cb, tries + 1); }, 250);
+    else if (!driveOn) driveUi('login', 'No se ha podido cargar el acceso de Google. Revisa la conexión y recarga la página.');
+  }
+  function signIn() {
+    if (!gClient) { driveUi('login', 'El acceso de Google aún está cargando. Vuelve a tocar en un momento.'); return; }
+    driveUi('busy', 'Esperando a Google…');
+    clearTimeout(busyTimer);
+    busyTimer = setTimeout(function () { if (!driveOn) driveUi('login'); }, 90000);
+    try { gClient.requestAccessToken({ prompt: '' }); }
+    catch (e) { driveUi('login', 'No se ha podido abrir el acceso de Google.'); }
+  }
+  function onGToken(resp) {
+    clearTimeout(busyTimer);
+    if (resp.error) { driveUi('login', 'Google no ha dado acceso. Vuelve a intentarlo.'); return; }
+    gToken = resp.access_token;
+    fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: 'Bearer ' + gToken } })
+      .then(function (r) { return r.json(); })
+      .then(function (u) {
+        var email = (u.email || '').trim().toLowerCase();
+        if (email !== ALLOWED_EMAIL) {
+          try { google.accounts.oauth2.revoke(gToken, function () {}); } catch (e) {}
+          gToken = null;
+          driveUi('login', 'Esa cuenta (' + (u.email || '') + ') no tiene acceso. Entra con ' + ALLOWED_EMAIL + '.');
+          return;
+        }
+        tokDesa(resp, u);
+        connect();
+      })
+      .catch(function () { gToken = null; driveUi('login', 'No he podido confirmar la cuenta. Vuelve a intentarlo.'); });
+  }
+  function driveInit() {
+    var cid = lsGet(CID_KEY);
+    if (!cid) { driveUi('setup'); return; }
+    var d = tokDesat();
+    if (d) { gToken = d.t; connect(); } else driveUi('login');
+    waitForGis(function () {
+      try {
+        gClient = google.accounts.oauth2.initTokenClient({
+          client_id: cid,
+          scope: GSCOPE,
+          callback: onGToken,
+          error_callback: function () {
+            clearTimeout(busyTimer);
+            if (!driveOn) driveUi('login', 'No se ha completado la entrada en Google. Vuelve a intentarlo.');
+          }
+        });
+      } catch (e) {
+        if (!driveOn) driveUi('setup', 'Ese Client ID no parece válido. Pega el de las otras apps de Solell.');
+      }
+    });
+  }
+
+  $('driveBtn').addEventListener('click', signIn);
+  $('driveOut').addEventListener('click', function () {
+    tokOblida();
+    try { if (gToken && window.google && google.accounts.oauth2.revoke) google.accounts.oauth2.revoke(gToken, function () {}); } catch (e) {}
+    gToken = null;
+    driveOn = false;
+    driveUi('login');
+  });
+  $('driveSetup').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = $('driveCid').value.trim();
+    if (!v) { $('driveCid').focus(); return; }
+    lsSet(CID_KEY, v);
+    driveInit();
+  });
+  /* al cerrar o cambiar de app, lo que quede pendiente sale igualmente */
+  window.addEventListener('pagehide', function () {
+    if (!driveOn || !dirty || !fileId || saving || !gToken) return;
+    var body = payload();
+    if (body.length > 60000) return;
+    try {
+      fetch(UPLOAD + '/' + encodeURIComponent(fileId) + '?uploadType=media&fields=id', {
+        method: 'PATCH', keepalive: true,
+        headers: { Authorization: 'Bearer ' + gToken, 'Content-Type': 'application/json; charset=UTF-8' },
+        body: body
+      });
+      dirty = false;
+    } catch (e) {}
+  });
+
+  /* ---------- eventos ---------- */
+  $('primary').addEventListener('click', primaryAction);
+  cv.addEventListener('click', primaryAction);
+  $('done').addEventListener('click', markDone);
+  $('later').addEventListener('click', later);
+  $('reset').addEventListener('click', function () {
+    var t = state.timer;
+    if (t.mode === 'break') newFocus(false);
+    else if (t.status === 'finished') { ensureAudio(); newFocus(true); }
+    else newFocus(false);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.chip'), function (c) {
+    c.addEventListener('click', function () {
+      var m = Number(c.getAttribute('data-min'));
+      if (DURATIONS.indexOf(m) < 0) return;
+      if (!(state.timer.mode === 'focus' && state.timer.status === 'idle')) return;
+      state.focusMin = m;
+      state.timer = freshTimer('focus', m);
+      commit();
+    });
+  });
+  $('addForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = $('newTask');
+    if (addTask(input.value)) input.value = '';
+    input.focus();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.code !== 'Space' && e.key !== ' ') return;
+    var tag = (e.target && e.target.tagName) || '';
+    if (/INPUT|TEXTAREA|BUTTON|SELECT|SUMMARY/.test(tag)) return;
+    e.preventDefault();
+    primaryAction();
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) { checkEnd(false); render(); if (state.timer.status === 'running') loop(); driveRefresh(); }
+    else if (driveOn && dirty) flushRemote();
+  });
+  setInterval(function () { checkEnd(false); }, 1000);
+  var rz = 0;
+  window.addEventListener('resize', function () {
+    clearTimeout(rz);
+    rz = setTimeout(function () { sizeCanvas(); tick(performance.now()); }, 80);
+  });
+  if (window.matchMedia) {
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    if (mq.addEventListener) mq.addEventListener('change', function () { tick(performance.now()); });
+  }
+  new MutationObserver(function () { tick(performance.now()); })
+    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { tick(performance.now()); });
+
+  /* ---------- arranque ---------- */
+  sizeCanvas();
+  checkEnd(true);
+  render();
+  if (state.timer.status === 'running') loop();
+  driveInit();
+})();
+</script>
+</body>
+</html>
