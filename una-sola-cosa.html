@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root {
   /* Una columna: la tarea actual como titular, debajo el vaso graduado y el reloj, la cola plegada al final */
@@ -53,6 +54,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { height: 100%; margin: 0; }
 body {
   background: var(--paper);
@@ -75,6 +77,19 @@ header {
   align-items: baseline;
   gap: 12px;
 }
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.back {
+  font: 700 13px/1 var(--font-body);
+  color: var(--muted);
+  text-decoration: none;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 11px;
+  flex: none;
+}
+.back:hover { color: var(--ink); border-color: var(--glass); }
+.drive { display: flex; flex-direction: column; gap: 10px; }
+.drive-actions { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
 .mark {
   font-family: var(--font-display);
   font-weight: 750;
@@ -278,7 +293,10 @@ li:last-child { border-bottom: 0; }
 <body>
 <main class="wrap">
   <header>
-    <p class="mark">Una sola cosa</p>
+    <div class="brand">
+      <a class="back" href="index.html">Menú</a>
+      <p class="mark">Una sola cosa</p>
+    </div>
     <p class="today"><strong id="todayCount">0</strong> hechas hoy</p>
   </header>
 
@@ -330,7 +348,18 @@ li:last-child { border-bottom: 0; }
     </details>
   </div>
 
-  <p class="sync" id="sync">Se guarda en este navegador.</p>
+  <section class="drive" aria-label="Guardado">
+    <p class="sync" id="sync" aria-live="polite">Se guarda en este navegador.</p>
+    <div class="drive-actions">
+      <button class="btn" id="driveBtn" type="button" hidden>Guardar en Google Drive</button>
+      <button class="linkbtn" id="driveOut" type="button" hidden>Cerrar sesión de Google</button>
+    </div>
+    <form class="add" id="driveSetup" autocomplete="off" hidden>
+      <label for="driveCid" class="sr">Client ID de Google</label>
+      <input id="driveCid" type="text" placeholder="xxxxx.apps.googleusercontent.com" spellcheck="false" autocapitalize="off">
+      <button class="btn" type="submit">Guardar</button>
+    </form>
+  </section>
 </main>
 
 <script>
@@ -421,7 +450,8 @@ li:last-child { border-bottom: 0; }
   var state = sanitize(loadLocal()) || defaultState();
 
   function commit() {
-    state.updatedAt = now();
+    /* siempre por delante de lo último visto, aunque el otro dispositivo lleve el reloj adelantado */
+    state.updatedAt = Math.max(now(), (state.updatedAt || 0) + 1);
     saveLocal(state);
     scheduleRemote();
     render();
@@ -871,86 +901,288 @@ li:last-child { border-bottom: 0; }
     raf = requestAnimationFrame(step);
   }
 
-  /* ---------- guardado en la cuenta (db) ---------- */
-  var dbRef = null, saving = false, pendingSave = false, saveTimer = 0;
+  /* ---------- guardado en Google Drive ----------
+     Usa el mismo Client ID y la misma sesión de Google que las otras apps de
+     Solell (las mismas claves de este navegador): si ya has entrado en otra, no
+     vuelve a pedir nada. Con el permiso drive.file solo ve los archivos que crean
+     estas apps. La cola queda en un JSON legible, solell-una-sola-cosa.json, en
+     la raíz del Drive. Si gana el último que guarda: al volver a la pestaña se
+     relee el Drive antes de escribir. */
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+
+  var CID_KEY = 'g_client_id';
+  var ALLOWED_EMAIL = 'roninsilent@gmail.com';
+  var TOK_KEY = 'g_token_' + ALLOWED_EMAIL;
+  var GSCOPE = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile';
+  var DRIVE_NAME = 'solell-una-sola-cosa.json';
+  var FILEID_KEY = LS_KEY + ':drive-id';
+  var API = 'https://www.googleapis.com/drive/v3/files';
+  var UPLOAD = 'https://www.googleapis.com/upload/drive/v3/files';
+
+  var gToken = null, gClient = null, fileId = lsGet(FILEID_KEY);
+  var driveOn = false, dirty = false, saving = false, pulling = false, pendingSave = false;
+  var saveTimer = 0, busyTimer = 0, lastPull = 0, lastSaved = 0, retries404 = 0;
+
   function setSync(msg) { $('sync').textContent = msg; }
-  function fallbackMsg() {
-    return localOk ? 'Se guarda solo en este navegador.' : 'Este navegador no deja guardar: la cola se pierde al cerrar.';
+  function hora(ts) {
+    var d = new Date(ts);
+    return (d.getHours() < 10 ? '0' : '') + d.getHours() + ':' + (d.getMinutes() < 10 ? '0' : '') + d.getMinutes();
   }
-  function scheduleRemote() {
-    if (!dbRef) return;
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(flushRemote, 500);
-  }
-  async function flushRemote() {
-    if (!dbRef) return;
-    if (saving) { pendingSave = true; return; }
-    saving = true;
-    pendingSave = false;
-    var body = { state: JSON.parse(JSON.stringify(state)), client: CLIENT };
-    try {
-      await dbRef.set(body);
-    } catch (e) {
-      var code = e && e.code;
-      if (code === 'unavailable') {
-        await sleep(700 + Math.random() * 900);
-        try { await dbRef.set(body); }
-        catch (e2) { setSync('No llegó el guardado a tu cuenta; de momento queda en este navegador.'); }
-      } else if (code === 'quota_exceeded') {
-        setSync('El guardado de tu cuenta está lleno; de momento queda en este navegador.');
-      } else {
-        dbRef = null;
-        setSync(fallbackMsg());
-      }
-    }
-    saving = false;
-    if (pendingSave) flushRemote();
+  function driveUi(mode, msg) {
+    var btn = $('driveBtn');
+    $('driveSetup').hidden = mode !== 'setup';
+    $('driveOut').hidden = mode !== 'on';
+    btn.hidden = !(mode === 'login' || mode === 'expired');
+    btn.textContent = mode === 'expired' ? 'Volver a entrar en Google' : 'Guardar en Google Drive';
+    var local = localOk ? 'Se guarda solo en este navegador.' : 'Ahora mismo no se guarda en ningún sitio.';
+    var t;
+    if (mode === 'setup') t = msg || local + ' Para guardarlo en el Drive, pega el Client ID de Google (el mismo de las otras apps de Solell).';
+    else if (mode === 'login') t = msg || local;
+    else if (mode === 'expired') t = msg || 'La sesión de Google ha caducado. Los cambios esperan en este navegador hasta que vuelvas a entrar.';
+    else if (mode === 'busy') t = msg || 'Conectando con el Drive…';
+    else t = msg || ('Se guarda en tu Drive, en ' + DRIVE_NAME + (lastSaved ? ' · último guardado a las ' + hora(lastSaved) : '') + '.');
+    setSync(t);
   }
 
-  async function connectDb() {
-    if (!window.claude || typeof window.claude.use !== 'function') return;
+  /* la sesión de Google, compartida con las otras apps */
+  function tokDesa(resp, u) {
+    lsSet(TOK_KEY, JSON.stringify({
+      t: resp.access_token,
+      fins: Date.now() + (Math.max(60, (+resp.expires_in || 3600)) - 120) * 1000,
+      scope: resp.scope || GSCOPE,
+      email: (u && u.email) || '',
+      foto: (u && u.picture) || ''
+    }));
+  }
+  function tokDesat() {
     try {
-      var both = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
-      var db = both[0], user = both[1];
-      if (!db || !user) return;
-      var id = await user.id();
-      if (!id) return;
-      var ref = db.doc('data/users/' + id + '/state');
-      dbRef = ref;
-      var waitTimer = setTimeout(function () {
-        setSync('Tu guardado aún no responde; mientras, uso lo de este navegador.');
-      }, 10000);
-      ref.onSnapshot(function (snap) {
-        if (!snap.metadata.fromCache) {
-          clearTimeout(waitTimer);
-          if (dbRef) setSync('Se guarda en tu cuenta de Claude: la misma cola en el móvil y en el ordenador.');
-        }
-        if (snap.metadata.hasPendingWrites) return;
-        if (!snap.exists) {
-          if (!snap.metadata.fromCache && state.updatedAt > 0) flushRemote();
-          return;
-        }
-        var d = snap.data();
+      var d = JSON.parse(lsGet(TOK_KEY) || 'null');
+      if (!d || !d.t || !(d.fins > Date.now())) return null;
+      if ((d.email || '').trim().toLowerCase() !== ALLOWED_EMAIL) return null;
+      var te = String(d.scope || '').split(/\s+/);
+      var falta = GSCOPE.split(/\s+/).filter(function (s) { return te.indexOf(s) < 0; });
+      return falta.length ? null : d;
+    } catch (e) { return null; }
+  }
+  function tokOblida() { lsDel(TOK_KEY); }
+  function caducada() { gToken = null; driveOn = false; driveUi('expired'); }
+
+  function driveFetch(url, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({}, opts.headers, { Authorization: 'Bearer ' + gToken });
+    return fetch(url, opts).then(function (r) {
+      if (r.status === 401) { tokOblida(); throw { code: 'g_401' }; }
+      if (r.status === 404) throw { code: 'g_404' };
+      if (!r.ok) throw { code: 'g_http_' + r.status };
+      return r;
+    });
+  }
+  function forgetFile() { fileId = null; lsDel(FILEID_KEY); }
+  function ensureFile() {
+    if (fileId) return Promise.resolve(fileId);
+    var q = encodeURIComponent("name='" + DRIVE_NAME + "' and trashed=false");
+    return driveFetch(API + '?q=' + q + '&fields=files(id,modifiedTime)&orderBy=' + encodeURIComponent('modifiedTime desc') + '&spaces=drive')
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d.files && d.files.length) return d.files[0].id;
+        var b = 'solellboundary';
+        var body = '--' + b + '\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n' +
+          JSON.stringify({ name: DRIVE_NAME, mimeType: 'application/json' }) +
+          '\r\n--' + b + '\r\nContent-Type: application/json\r\n\r\n{}\r\n--' + b + '--';
+        return driveFetch(UPLOAD + '?uploadType=multipart&fields=id', {
+          method: 'POST', headers: { 'Content-Type': 'multipart/related; boundary=' + b }, body: body
+        }).then(function (r) { return r.json(); }).then(function (f) { return f.id; });
+      })
+      .then(function (id) {
+        if (!id) throw { code: 'g_sin_id' };
+        fileId = id;
+        lsSet(FILEID_KEY, id);
+        return id;
+      });
+  }
+
+  /* leer: si el Drive tiene algo más nuevo, manda el Drive; si lo nuevo es de aquí, se sube */
+  function drivePull(retried) {
+    return ensureFile()
+      .then(function (id) { return driveFetch(API + '/' + encodeURIComponent(id) + '?alt=media'); })
+      .then(function (r) { return r.text(); })
+      .then(function (t) {
+        var d = null;
+        try { d = t ? JSON.parse(t) : null; } catch (e) { d = null; }
         var remote = sanitize(d && d.state);
-        if (!remote) return;
-        if (remote.updatedAt > state.updatedAt) {
+        lastPull = now();
+        if (remote && remote.updatedAt > state.updatedAt) {
           state = remote;
           saveLocal(state);
+          if (d.desat) lastSaved = Date.parse(d.desat) || lastSaved;
           checkEnd(true);
           render();
           if (state.timer.status === 'running') loop();
-        } else if (remote.updatedAt < state.updatedAt && !snap.metadata.fromCache) {
-          scheduleRemote();
+        } else if (state.updatedAt > (remote ? remote.updatedAt : 0)) {
+          dirty = true;
         }
-      }, function () {
-        clearTimeout(waitTimer);
-        dbRef = null;
-        setSync(fallbackMsg());
+      })
+      .catch(function (e) {
+        if (e && e.code === 'g_404' && !retried) { forgetFile(); return drivePull(true); }
+        throw e;
       });
-    } catch (e) {
-      dbRef = null;
-    }
   }
+
+  /* escribir: una escritura cada vez, agrupando los cambios seguidos */
+  function payload() {
+    return JSON.stringify({ app: 'una-sola-cosa', versio: 1, desat: new Date().toISOString(), state: state }, null, 2);
+  }
+  function scheduleRemote() {
+    dirty = true;
+    if (!driveOn) return;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(flushRemote, 1200);
+  }
+  function flushRemote() {
+    clearTimeout(saveTimer);
+    if (!driveOn || !dirty || pulling) return;
+    if (saving) { pendingSave = true; return; }
+    if (!tokDesat()) { caducada(); return; }
+    saving = true;
+    pendingSave = false;
+    dirty = false;
+    var body = payload();
+    ensureFile()
+      .then(function (id) {
+        return driveFetch(UPLOAD + '/' + encodeURIComponent(id) + '?uploadType=media&fields=id', {
+          method: 'PATCH', headers: { 'Content-Type': 'application/json; charset=UTF-8' }, body: body
+        });
+      })
+      .then(function () { lastSaved = now(); retries404 = 0; if (driveOn) driveUi('on'); })
+      .catch(function (e) {
+        dirty = true;
+        if (e && e.code === 'g_404' && retries404 < 2) { retries404++; forgetFile(); pendingSave = true; return; }
+        driveFail(e);
+      })
+      .then(function () { saving = false; if (pendingSave && driveOn) flushRemote(); });
+  }
+  function driveFail(e) {
+    if (e && e.code === 'g_401') { caducada(); return; }
+    if (driveOn) driveUi('on', 'No he podido guardar en el Drive ahora mismo. Lo reintento con el próximo cambio; mientras, queda en este navegador.');
+    else driveUi('login', 'No he podido leer el Drive ahora mismo. Vuelve a intentarlo en un rato.');
+  }
+  function connect() {
+    driveOn = true;
+    pulling = true;
+    driveUi('busy', 'Leyendo tu Drive…');
+    drivePull().then(function () {
+      pulling = false;
+      if (!driveOn) return;
+      driveUi('on');
+      if (dirty) flushRemote();
+    }, function (e) {
+      pulling = false;
+      driveOn = false;
+      driveFail(e);
+    });
+  }
+  function driveRefresh() {
+    if (!driveOn || saving || pulling) return;
+    if (!tokDesat()) { caducada(); return; }
+    if (dirty) { flushRemote(); return; }
+    if (now() - lastPull < 15000) return;
+    pulling = true;
+    drivePull().then(function () {
+      pulling = false;
+      if (dirty) flushRemote();
+    }, function (e) {
+      pulling = false;
+      driveFail(e);
+    });
+  }
+
+  /* entrar en Google */
+  function waitForGis(cb, tries) {
+    tries = tries || 0;
+    if (window.google && google.accounts && google.accounts.oauth2) cb();
+    else if (tries < 40) setTimeout(function () { waitForGis(cb, tries + 1); }, 250);
+    else if (!driveOn) driveUi('login', 'No se ha podido cargar el acceso de Google. Revisa la conexión y recarga la página.');
+  }
+  function signIn() {
+    if (!gClient) { driveUi('login', 'El acceso de Google aún está cargando. Vuelve a tocar en un momento.'); return; }
+    driveUi('busy', 'Esperando a Google…');
+    clearTimeout(busyTimer);
+    busyTimer = setTimeout(function () { if (!driveOn) driveUi('login'); }, 90000);
+    try { gClient.requestAccessToken({ prompt: '' }); }
+    catch (e) { driveUi('login', 'No se ha podido abrir el acceso de Google.'); }
+  }
+  function onGToken(resp) {
+    clearTimeout(busyTimer);
+    if (resp.error) { driveUi('login', 'Google no ha dado acceso. Vuelve a intentarlo.'); return; }
+    gToken = resp.access_token;
+    fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: 'Bearer ' + gToken } })
+      .then(function (r) { return r.json(); })
+      .then(function (u) {
+        var email = (u.email || '').trim().toLowerCase();
+        if (email !== ALLOWED_EMAIL) {
+          try { google.accounts.oauth2.revoke(gToken, function () {}); } catch (e) {}
+          gToken = null;
+          driveUi('login', 'Esa cuenta (' + (u.email || '') + ') no tiene acceso. Entra con ' + ALLOWED_EMAIL + '.');
+          return;
+        }
+        tokDesa(resp, u);
+        connect();
+      })
+      .catch(function () { gToken = null; driveUi('login', 'No he podido confirmar la cuenta. Vuelve a intentarlo.'); });
+  }
+  function driveInit() {
+    var cid = lsGet(CID_KEY);
+    if (!cid) { driveUi('setup'); return; }
+    var d = tokDesat();
+    if (d) { gToken = d.t; connect(); } else driveUi('login');
+    waitForGis(function () {
+      try {
+        gClient = google.accounts.oauth2.initTokenClient({
+          client_id: cid,
+          scope: GSCOPE,
+          callback: onGToken,
+          error_callback: function () {
+            clearTimeout(busyTimer);
+            if (!driveOn) driveUi('login', 'No se ha completado la entrada en Google. Vuelve a intentarlo.');
+          }
+        });
+      } catch (e) {
+        if (!driveOn) driveUi('setup', 'Ese Client ID no parece válido. Pega el de las otras apps de Solell.');
+      }
+    });
+  }
+
+  $('driveBtn').addEventListener('click', signIn);
+  $('driveOut').addEventListener('click', function () {
+    tokOblida();
+    try { if (gToken && window.google && google.accounts.oauth2.revoke) google.accounts.oauth2.revoke(gToken, function () {}); } catch (e) {}
+    gToken = null;
+    driveOn = false;
+    driveUi('login');
+  });
+  $('driveSetup').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var v = $('driveCid').value.trim();
+    if (!v) { $('driveCid').focus(); return; }
+    lsSet(CID_KEY, v);
+    driveInit();
+  });
+  /* al cerrar o cambiar de app, lo que quede pendiente sale igualmente */
+  window.addEventListener('pagehide', function () {
+    if (!driveOn || !dirty || !fileId || saving || !gToken) return;
+    var body = payload();
+    if (body.length > 60000) return;
+    try {
+      fetch(UPLOAD + '/' + encodeURIComponent(fileId) + '?uploadType=media&fields=id', {
+        method: 'PATCH', keepalive: true,
+        headers: { Authorization: 'Bearer ' + gToken, 'Content-Type': 'application/json; charset=UTF-8' },
+        body: body
+      });
+      dirty = false;
+    } catch (e) {}
+  });
 
   /* ---------- eventos ---------- */
   $('primary').addEventListener('click', primaryAction);
@@ -987,7 +1219,8 @@ li:last-child { border-bottom: 0; }
     primaryAction();
   });
   document.addEventListener('visibilitychange', function () {
-    if (!document.hidden) { checkEnd(false); render(); if (state.timer.status === 'running') loop(); }
+    if (!document.hidden) { checkEnd(false); render(); if (state.timer.status === 'running') loop(); driveRefresh(); }
+    else if (driveOn && dirty) flushRemote();
   });
   setInterval(function () { checkEnd(false); }, 1000);
   var rz = 0;
@@ -1004,12 +1237,11 @@ li:last-child { border-bottom: 0; }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { tick(performance.now()); });
 
   /* ---------- arranque ---------- */
-  setSync(localOk ? 'Se guarda en este navegador.' : fallbackMsg());
   sizeCanvas();
   checkEnd(true);
   render();
   if (state.timer.status === 'running') loop();
-  connectDb();
+  driveInit();
 })();
 </script>
 </body>
