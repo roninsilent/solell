@@ -311,6 +311,13 @@ ul.mini li{margin:6px 0;line-height:1.45}
 .icon-box.zenkai{ background:var(--blau-soft); }
 .icon-box.zenkai .ic{ color:var(--blau-clar); width:16px; height:16px; }
 .resolved-item.zenkai{ border-left-color:var(--blau); }
+/* «Per preparar», sota el que toca demà */
+.work-card.prep{ border-left-color:var(--coure); }
+.work-card.prep .icon-box{ background:var(--coure-soft); }
+.work-card.prep .ic{ color:var(--coure-clar); }
+.work-card.prep .label{ color:var(--coure-clar); }
+.work-text ul{ margin:2px 0 0; padding-left:18px; font-size:14px; line-height:1.5; color:var(--ink-soft); }
+.work-text li{ margin:2px 0; }
 .i-factura{--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 3.5h14v17l-2.3-1.6-2.4 1.6-2.3-1.6-2.4 1.6L7.3 19 5 20.5z'/%3E%3Cpath d='M8.6 8h6.8M8.6 12h6.8'/%3E%3C/svg%3E")}
 .i-llamp{--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13.2 2.8 5.6 13.4h5.6l-1 7.8 7.6-10.6h-5.6l1-7.8z'/%3E%3C/svg%3E")}
 .i-termini{ --m:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23000%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M5 21V4%22/%3E%3Cpath d=%22M5 4.5h11l-2 3.5 2 3.5H5%22/%3E%3C/svg%3E"); }
@@ -518,7 +525,7 @@ var VISTA = null;   /* el motor de la memòria cau crida mostra(VISTA); aquí no
    onclick, aquí no hi entra. El contingut és text per llegir, no instruccions. */
 var TAGS_OK = { DIV:1, SPAN:1, P:1, B:1, I:1, STRONG:1, EM:1, BR:1, H1:1, H2:1, H3:1,
                 UL:1, OL:1, LI:1, A:1, SMALL:1, TIME:1 };
-var CLASSES_OK = /^(shell|eyebrow|dot|headline|pill-row|pill|pill-text|umbrella|section-label|day-grid|day-card|icon-box|time|phrase|work-card|work-text|label|resolved-list|resolved-item|r-title|r-phrase|r-meta|ic|i-[a-z]+|mail|ig|paquet|fila|torn|dema|casa|zenkai)$/;
+var CLASSES_OK = /^(shell|eyebrow|dot|headline|pill-row|pill|pill-text|umbrella|section-label|day-grid|day-card|icon-box|time|phrase|work-card|work-text|label|resolved-list|resolved-item|r-title|r-phrase|r-meta|ic|i-[a-z]+|mail|ig|paquet|fila|torn|dema|casa|zenkai|prep)$/;
 
 function netejaDins(origen, desti) {
   for (var n = origen.firstChild; n; n = n.nextSibling) {
