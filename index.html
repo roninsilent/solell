@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Solell 19</title>
-<meta name="description" content="Les coses de casa: les factures i el resum de cada matí">
+<meta name="description" content="Les coses de casa">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Solell">
@@ -45,7 +45,6 @@ a{color:inherit}
 
 h1{font-family:var(--display);font-weight:600;font-size:clamp(26px,5.4vw,34px);line-height:1.25;letter-spacing:-.01em;
   margin:0 0 10px;max-width:16ch;text-wrap:balance}
-.sub{color:var(--ink-soft);font-size:14px;margin:0 0 40px;max-width:52ch}
 
 .section-label{font-size:12px;font-weight:600;color:var(--ink-dim);margin:0 0 16px}
 
@@ -85,9 +84,8 @@ h1{font-family:var(--display);font-weight:600;font-size:clamp(26px,5.4vw,34px);l
    títols de secció petits i en majúscules amb una ratlla fins al marge, les xifres en
    color i una vora de color a les targetes. Les píndoles (Menú, xips, pestanyes al
    mòbil) es queden rodones, com al mediakit. */
-h1{font-size:clamp(30px,6.2vw,46px);line-height:1.08;letter-spacing:-.025em;max-width:15ch;margin:0 0 14px}
+h1{font-size:clamp(30px,6.2vw,46px);line-height:1.08;letter-spacing:-.025em;max-width:15ch;margin:0 0 40px}
 h1 em{font-style:normal;color:var(--coure-clar)}
-.sub{font-size:clamp(14.5px,2.1vw,16.5px)}
 .section-label{display:flex;align-items:center;gap:10px;font-family:var(--sans);font-size:12px;font-weight:700;
   letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 14px}
 .section-label::after{content:"";flex:1;height:1px;background:var(--line)}
@@ -116,7 +114,6 @@ body{background:radial-gradient(900px 420px at 8% -140px,rgba(161,98,58,.14),tra
 .marca path+path+path{animation-duration:.25s;animation-delay:1.4s}
 .brandname{animation:obre 1.1s cubic-bezier(.2,.7,.2,1) .35s both}
 h1{animation:entra .6s cubic-bezier(.2,.7,.2,1) .15s both}
-.sub{animation:entra .6s cubic-bezier(.2,.7,.2,1) .25s both}
 .section-label{animation:apareix .5s .3s both}
 .section-label::after{transform-origin:left;animation:ratlla .9s cubic-bezier(.2,.7,.2,1) .35s both}
 /* les apps entren d'una en una */
@@ -144,7 +141,6 @@ h1{animation:entra .6s cubic-bezier(.2,.7,.2,1) .15s both}
   </div>
 
   <h1>Les coses <em>de casa</em>.</h1>
-  <p class="sub">Tot el que es mira sol i et deixa la feina feta: les factures que arriben per correu i el resum de cada matí.</p>
 
   <h2 class="section-label">Apps</h2>
   <p class="carregant" id="carregant">Buscant què hi ha…</p>
