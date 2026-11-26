@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="ca">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,7 +11,7 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root {
-  /* Una columna: la tarea actual como titular, debajo el vaso graduado y el reloj, la cola plegada al final */
+  /* Una columna: la tasca d'ara com a titular, a sota el vas graduat i el rellotge, i la cua plegada al final */
   --paper: #edf0f2;
   --surface: #f8fafb;
   --ink: #16212b;
@@ -297,24 +297,24 @@ li:last-child { border-bottom: 0; }
       <a class="back" href="index.html">Menú</a>
       <p class="mark">Una sola cosa</p>
     </div>
-    <p class="today"><strong id="todayCount">0</strong> hechas hoy</p>
+    <p class="today"><strong id="todayCount">0</strong> fetes avui</p>
   </header>
 
   <section class="now" aria-live="polite">
-    <p class="eyebrow"><span>Ahora</span><span id="behind"></span></p>
-    <h1 id="current" class="task">Contestar el correo que llevas tres días posponiendo</h1>
-    <p id="exNote" class="note">Son tareas de ejemplo: se borran en cuanto añades la primera tuya.</p>
-    <p id="emptyNote" class="note" hidden>Escribe abajo lo siguiente que toca.</p>
+    <p class="eyebrow"><span>Ara</span><span id="behind"></span></p>
+    <h1 id="current" class="task">Contestar el correu que fa tres dies que ajornes</h1>
+    <p id="exNote" class="note">Són tasques d'exemple: s'esborren quan afegeixes la primera teva.</p>
+    <p id="emptyNote" class="note" hidden>Escriu a sota què toca ara.</p>
   </section>
 
-  <section class="timer" aria-label="Temporizador">
+  <section class="timer" aria-label="Temporitzador">
     <canvas id="glass" aria-hidden="true"></canvas>
     <div class="readout">
-      <p class="mode" id="mode">Foco</p>
+      <p class="mode" id="mode">Concentració</p>
       <p class="clock" id="clock" role="timer" aria-live="off">25:00</p>
-      <p class="hint" id="hint">El vaso se vacía en 25 minutos.</p>
-      <div class="chips" role="group" aria-label="Duración del vaso">
-        <span class="chips-label">Minutos por vaso</span>
+      <p class="hint" id="hint">El vas es buida en 25 minuts.</p>
+      <div class="chips" role="group" aria-label="Durada del vas">
+        <span class="chips-label">Minuts per vas</span>
         <button class="chip" type="button" data-min="15" aria-pressed="false">15</button>
         <button class="chip" type="button" data-min="25" aria-pressed="true">25</button>
         <button class="chip" type="button" data-min="50" aria-pressed="false">50</button>
@@ -324,40 +324,40 @@ li:last-child { border-bottom: 0; }
 
   <div class="actions">
     <div class="controls">
-      <button id="primary" class="btn primary" type="button">Empezar el vaso</button>
-      <button id="done" class="btn" type="button">Hecha</button>
-      <button id="later" class="btn" type="button">Después</button>
+      <button id="primary" class="btn primary" type="button">Comença el vas</button>
+      <button id="done" class="btn" type="button">Feta</button>
+      <button id="later" class="btn" type="button">Després</button>
     </div>
-    <button id="reset" class="linkbtn" type="button" hidden>Reiniciar el vaso</button>
+    <button id="reset" class="linkbtn" type="button" hidden>Reinicia el vas</button>
   </div>
 
   <form id="addForm" class="add" autocomplete="off">
-    <label for="newTask" class="sr">Añadir a la cola</label>
-    <input id="newTask" name="newTask" type="text" maxlength="200" placeholder="Lo siguiente que tienes que hacer…" enterkeyhint="done">
-    <button type="submit" class="btn" id="addBtn">Añadir</button>
+    <label for="newTask" class="sr">Afegeix a la cua</label>
+    <input id="newTask" name="newTask" type="text" maxlength="200" placeholder="El següent que has de fer…" enterkeyhint="done">
+    <button type="submit" class="btn" id="addBtn">Afegeix</button>
   </form>
 
   <div class="drawers">
     <details id="queueBox">
-      <summary>En cola <span class="count" id="queueCount">2</span></summary>
+      <summary>A la cua <span class="count" id="queueCount">2</span></summary>
       <ol id="queueList"></ol>
     </details>
     <details id="doneBox">
-      <summary>Hechas hoy <span class="count" id="doneCount">0</span></summary>
+      <summary>Fetes avui <span class="count" id="doneCount">0</span></summary>
       <ul id="doneList"></ul>
     </details>
   </div>
 
-  <section class="drive" aria-label="Guardado">
-    <p class="sync" id="sync" aria-live="polite">Se guarda en este navegador.</p>
+  <section class="drive" aria-label="Desat">
+    <p class="sync" id="sync" aria-live="polite">Es desa en aquest navegador.</p>
     <div class="drive-actions">
-      <button class="btn" id="driveBtn" type="button" hidden>Guardar en Google Drive</button>
-      <button class="linkbtn" id="driveOut" type="button" hidden>Cerrar sesión de Google</button>
+      <button class="btn" id="driveBtn" type="button" hidden>Desa al Google Drive</button>
+      <button class="linkbtn" id="driveOut" type="button" hidden>Tanca la sessió de Google</button>
     </div>
     <form class="add" id="driveSetup" autocomplete="off" hidden>
       <label for="driveCid" class="sr">Client ID de Google</label>
       <input id="driveCid" type="text" placeholder="xxxxx.apps.googleusercontent.com" spellcheck="false" autocapitalize="off">
-      <button class="btn" type="submit">Guardar</button>
+      <button class="btn" type="submit">Desa</button>
     </form>
   </section>
 </main>
@@ -380,9 +380,9 @@ li:last-child { border-bottom: 0; }
 
   function examples() {
     return [
-      { id: 'ex1', text: 'Contestar el correo que llevas tres días posponiendo', ex: true },
-      { id: 'ex2', text: 'Pedir cita para pasar la ITV', ex: true },
-      { id: 'ex3', text: 'Leer diez páginas del libro de la mesilla', ex: true }
+      { id: 'ex1', text: 'Contestar el correu que fa tres dies que ajornes', ex: true },
+      { id: 'ex2', text: 'Demanar hora per passar la ITV', ex: true },
+      { id: 'ex3', text: 'Llegir deu pàgines del llibre de la tauleta', ex: true }
     ];
   }
   function freshTimer(mode, min) {
@@ -407,7 +407,13 @@ li:last-child { border-bottom: 0; }
     if (Array.isArray(s.tasks)) {
       out.tasks = s.tasks.filter(function (t) { return t && typeof t.text === 'string' && cleanText(t.text); })
         .slice(0, 500)
-        .map(function (t) { return { id: String(t.id || uid()).slice(0, 40), text: cleanText(t.text), ex: !!t.ex }; });
+        .map(function (t) {
+          var id = String(t.id || uid()).slice(0, 40);
+          var text = cleanText(t.text);
+          /* les d'exemple sempre amb el text d'ara, encara que es desessin en una altra llengua */
+          if (t.ex) examples().forEach(function (e) { if (e.id === id) text = e.text; });
+          return { id: id, text: text, ex: !!t.ex };
+        });
     } else {
       out.tasks = examples();
     }
@@ -433,7 +439,7 @@ li:last-child { border-bottom: 0; }
     return out;
   }
 
-  /* ---------- guardado local ---------- */
+  /* ---------- desat local ---------- */
   var localOk = (function () {
     try { localStorage.setItem(LS_KEY + ':t', '1'); localStorage.removeItem(LS_KEY + ':t'); return true; }
     catch (e) { return false; }
@@ -444,20 +450,20 @@ li:last-child { border-bottom: 0; }
   }
   function saveLocal(st) {
     if (!localOk) return;
-    try { localStorage.setItem(LS_KEY, JSON.stringify(st)); } catch (e) { /* lleno o bloqueado */ }
+    try { localStorage.setItem(LS_KEY, JSON.stringify(st)); } catch (e) { /* ple o bloquejat */ }
   }
 
   var state = sanitize(loadLocal()) || defaultState();
 
   function commit() {
-    /* siempre por delante de lo último visto, aunque el otro dispositivo lleve el reloj adelantado */
+    /* sempre per davant de l'últim que s'ha vist, encara que l'altre dispositiu tingui el rellotge avançat */
     state.updatedAt = Math.max(now(), (state.updatedAt || 0) + 1);
     saveLocal(state);
     scheduleRemote();
     render();
   }
 
-  /* ---------- temporizador ---------- */
+  /* ---------- temporitzador ---------- */
   function leftMs() {
     var t = state.timer;
     if (t.status === 'running') return Math.max(0, t.endsAt - now());
@@ -509,7 +515,7 @@ li:last-child { border-bottom: 0; }
     else start();
   }
 
-  /* ---------- sonido ---------- */
+  /* ---------- so ---------- */
   var actx = null;
   function ensureAudio() {
     try {
@@ -543,7 +549,7 @@ li:last-child { border-bottom: 0; }
     } catch (e) {}
   }
 
-  /* ---------- tareas ---------- */
+  /* ---------- tasques ---------- */
   function addTask(raw) {
     var text = cleanText(raw);
     if (!text) return false;
@@ -624,41 +630,41 @@ li:last-child { border-bottom: 0; }
   function render() {
     var cur = state.tasks[0];
     var cEl = $('current');
-    cEl.textContent = cur ? cur.text : 'Nada en la cola.';
+    cEl.textContent = cur ? cur.text : 'No hi ha res a la cua.';
     cEl.classList.toggle('empty', !cur);
     $('emptyNote').hidden = !!cur;
     $('exNote').hidden = !state.tasks.some(function (t) { return t.ex; });
     var behind = Math.max(0, state.tasks.length - 1);
-    $('behind').textContent = behind === 0 ? '' : (behind === 1 ? '1 detrás' : behind + ' detrás');
+    $('behind').textContent = behind === 0 ? '' : (behind === 1 ? '1 a la cua' : behind + ' a la cua');
 
-    // botones
+    // botons
     var t = state.timer;
     var p = $('primary');
     var label;
-    if (t.status === 'running') label = 'Pausar';
-    else if (t.status === 'finished') label = 'Descanso de ' + BREAK_MIN + ' min';
-    else if (t.status === 'paused') label = t.mode === 'break' ? 'Seguir el descanso' : 'Seguir';
-    else label = 'Empezar el vaso';
+    if (t.status === 'running') label = 'Pausa';
+    else if (t.status === 'finished') label = 'Descans de ' + BREAK_MIN + ' min';
+    else if (t.status === 'paused') label = t.mode === 'break' ? 'Continua el descans' : 'Continua';
+    else label = 'Comença el vas';
     p.textContent = label;
     $('done').disabled = !cur;
     $('later').disabled = state.tasks.length < 2;
 
     var reset = $('reset');
-    if (t.mode === 'break') { reset.hidden = false; reset.textContent = 'Saltar el descanso'; }
-    else if (t.status === 'finished') { reset.hidden = false; reset.textContent = 'Llenar otro vaso sin descansar'; }
-    else if (t.status !== 'idle') { reset.hidden = false; reset.textContent = 'Reiniciar el vaso'; }
+    if (t.mode === 'break') { reset.hidden = false; reset.textContent = 'Salta el descans'; }
+    else if (t.status === 'finished') { reset.hidden = false; reset.textContent = 'Omple un altre vas sense descansar'; }
+    else if (t.status !== 'idle') { reset.hidden = false; reset.textContent = 'Reinicia el vas'; }
     else reset.hidden = true;
 
-    // modo y pista
-    $('mode').textContent = t.mode === 'focus' ? 'Foco' : 'Descanso';
+    // mode i pista
+    $('mode').textContent = t.mode === 'focus' ? 'Concentració' : 'Descans';
     var hint;
     if (t.mode === 'focus') {
-      if (t.status === 'idle') hint = 'El vaso se vacía en ' + state.focusMin + ' minutos.';
-      else if (t.status === 'running') hint = 'Solo esto hasta que se vacíe.';
-      else if (t.status === 'paused') hint = 'En pausa. El agua espera.';
-      else hint = 'Vaso vacío. Toma cinco minutos o llena otro.';
+      if (t.status === 'idle') hint = 'El vas es buida en ' + state.focusMin + ' minuts.';
+      else if (t.status === 'running') hint = 'Només això fins que es buidi.';
+      else if (t.status === 'paused') hint = "En pausa. L'aigua espera.";
+      else hint = "Vas buit. Pren-te cinc minuts o omple'n un altre.";
     } else {
-      hint = t.status === 'paused' ? 'Descanso en pausa.' : 'Descanso: el vaso se vuelve a llenar.';
+      hint = t.status === 'paused' ? 'Descans en pausa.' : 'Descans: el vas es torna a omplir.';
     }
     $('hint').textContent = hint;
 
@@ -669,7 +675,7 @@ li:last-child { border-bottom: 0; }
       c.disabled = chipsLocked;
     });
 
-    // cola
+    // cua
     var ql = $('queueList');
     ql.textContent = '';
     var rest = state.tasks.slice(1);
@@ -677,7 +683,7 @@ li:last-child { border-bottom: 0; }
     if (!rest.length) {
       var e = document.createElement('p');
       e.className = 'empty-list';
-      e.textContent = cur ? 'No hay nada detrás de la tarea actual.' : 'La cola está vacía.';
+      e.textContent = cur ? "Darrere d'aquesta no n'hi ha cap altra." : 'La cua és buida.';
       ql.appendChild(e);
     }
     rest.forEach(function (task) {
@@ -688,16 +694,16 @@ li:last-child { border-bottom: 0; }
       if (task.ex) {
         var tag = document.createElement('span');
         tag.className = 'tag';
-        tag.textContent = 'ejemplo';
+        tag.textContent = 'exemple';
         span.appendChild(tag);
       }
       li.appendChild(span);
-      li.appendChild(button('Ahora', 'mini', function () { moveToFront(task.id); }, 'Hacer ahora: ' + task.text));
-      li.appendChild(button('✕', 'mini', function () { removeTask(task.id); }, 'Quitar de la cola: ' + task.text));
+      li.appendChild(button('Ara', 'mini', function () { moveToFront(task.id); }, 'Fes-la ara: ' + task.text));
+      li.appendChild(button('✕', 'mini', function () { removeTask(task.id); }, 'Treu de la cua: ' + task.text));
       ql.appendChild(li);
     });
 
-    // hechas hoy
+    // fetes avui
     var td = todayDone();
     $('todayCount').textContent = String(td.length);
     $('doneCount').textContent = String(td.length);
@@ -706,7 +712,7 @@ li:last-child { border-bottom: 0; }
     if (!td.length) {
       var e2 = document.createElement('p');
       e2.className = 'empty-list';
-      e2.textContent = 'Todavía ninguna. Pulsa «Hecha» cuando acabes la de arriba.';
+      e2.textContent = 'Encara cap. Prem «Feta» quan acabis la de dalt.';
       dl.appendChild(e2);
     }
     td.slice().reverse().forEach(function (task) {
@@ -720,14 +726,14 @@ li:last-child { border-bottom: 0; }
       span.textContent = task.text;
       li.appendChild(time);
       li.appendChild(span);
-      li.appendChild(button('Desmarcar', 'mini', function () { restore(task.id); }, 'Devolver a la cola: ' + task.text));
+      li.appendChild(button('Desmarca', 'mini', function () { restore(task.id); }, 'Torna-la a la cua: ' + task.text));
       dl.appendChild(li);
     });
 
     tick(performance.now());
   }
 
-  /* ---------- el vaso ---------- */
+  /* ---------- el vas ---------- */
   var cv = $('glass');
   var ctx = cv.getContext('2d');
   var W = 180, H = 236;
@@ -766,7 +772,7 @@ li:last-child { border-bottom: 0; }
     function xL(y) { return xOL(y) + inset; }
     function xR(y) { return xOR(y) - inset; }
 
-    // nivel por área: un vaso cónico se vacía más deprisa por arriba
+    // nivell per àrea: un vas cònic es buida més de pressa per dalt
     var Hh = ibot - itop;
     var wb = xR(ibot) - xL(ibot), wt = xR(itop) - xL(itop);
     var k = (wt - wb) / Hh;
@@ -781,7 +787,7 @@ li:last-child { border-bottom: 0; }
     var f = fraction();
     var running = t.status === 'running';
 
-    // agua
+    // aigua
     if (f > 0.002) {
       var ly = levelFor(f);
       var amp = (running && !reduceMotion) ? 2.4 * Math.min(1, (ibot - ly) / 12) : 0;
@@ -809,7 +815,7 @@ li:last-child { border-bottom: 0; }
       ctx.lineTo(xL(ibot) - 4, ibot + 1);
       ctx.closePath();
       ctx.fill();
-      // línea de superficie
+      // línia de superfície
       ctx.strokeStyle = 'rgba(255,255,255,0.45)';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
@@ -822,7 +828,7 @@ li:last-child { border-bottom: 0; }
       ctx.restore();
     }
 
-    // base gruesa del vaso
+    // base gruixuda del vas
     ctx.fillStyle = cGlass;
     ctx.globalAlpha = 0.22;
     ctx.beginPath();
@@ -834,7 +840,7 @@ li:last-child { border-bottom: 0; }
     ctx.fill();
     ctx.globalAlpha = 1;
 
-    // contorno
+    // contorn
     ctx.strokeStyle = cGlass;
     ctx.lineWidth = 2;
     ctx.lineJoin = 'round';
@@ -855,7 +861,7 @@ li:last-child { border-bottom: 0; }
     ctx.stroke();
     ctx.globalAlpha = 1;
 
-    // brillo
+    // brillantor
     ctx.strokeStyle = 'rgba(255,255,255,0.55)';
     ctx.lineWidth = 2;
     ctx.beginPath();
@@ -863,7 +869,7 @@ li:last-child { border-bottom: 0; }
     ctx.lineTo(xL(top + 24 + Hh * 0.45) + 7, top + 24 + Hh * 0.45);
     ctx.stroke();
 
-    // graduación en minutos restantes
+    // graduació en els minuts que queden
     var T = Math.round(t.total / 60000);
     var major = T <= 10 ? 1 : (T <= 30 ? 5 : 10);
     var minor = T <= 30 ? 1 : 5;
@@ -901,13 +907,13 @@ li:last-child { border-bottom: 0; }
     raf = requestAnimationFrame(step);
   }
 
-  /* ---------- guardado en Google Drive ----------
-     Usa el mismo Client ID y la misma sesión de Google que las otras apps de
-     Solell (las mismas claves de este navegador): si ya has entrado en otra, no
-     vuelve a pedir nada. Con el permiso drive.file solo ve los archivos que crean
-     estas apps. La cola queda en un JSON legible, solell-una-sola-cosa.json, en
-     la raíz del Drive. Si gana el último que guarda: al volver a la pestaña se
-     relee el Drive antes de escribir. */
+  /* ---------- desat al Google Drive ----------
+     Fa servir el mateix Client ID i la mateixa sessió de Google que les altres
+     apps de Solell (les mateixes claus d'aquest navegador): si ja has entrat en
+     una altra, no torna a demanar res. Amb el permís drive.file només veu els
+     fitxers que creen aquestes apps. La cua queda en un JSON llegible,
+     solell-una-sola-cosa.json, a l'arrel del Drive. Guanya l'últim que desa: en
+     tornar a la pestanya es rellegeix el Drive abans d'escriure. */
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
@@ -935,18 +941,18 @@ li:last-child { border-bottom: 0; }
     $('driveSetup').hidden = mode !== 'setup';
     $('driveOut').hidden = mode !== 'on';
     btn.hidden = !(mode === 'login' || mode === 'expired');
-    btn.textContent = mode === 'expired' ? 'Volver a entrar en Google' : 'Guardar en Google Drive';
-    var local = localOk ? 'Se guarda solo en este navegador.' : 'Ahora mismo no se guarda en ningún sitio.';
+    btn.textContent = mode === 'expired' ? 'Torna a entrar a Google' : 'Desa al Google Drive';
+    var local = localOk ? 'Només es desa en aquest navegador.' : 'Ara mateix no es desa enlloc.';
     var t;
-    if (mode === 'setup') t = msg || local + ' Para guardarlo en el Drive, pega el Client ID de Google (el mismo de las otras apps de Solell).';
+    if (mode === 'setup') t = msg || local + ' Per desar-ho al Drive, enganxa el Client ID de Google (el mateix de les altres apps de Solell).';
     else if (mode === 'login') t = msg || local;
-    else if (mode === 'expired') t = msg || 'La sesión de Google ha caducado. Los cambios esperan en este navegador hasta que vuelvas a entrar.';
-    else if (mode === 'busy') t = msg || 'Conectando con el Drive…';
-    else t = msg || ('Se guarda en tu Drive, en ' + DRIVE_NAME + (lastSaved ? ' · último guardado a las ' + hora(lastSaved) : '') + '.');
+    else if (mode === 'expired') t = msg || 'La sessió de Google ha caducat. Els canvis esperen en aquest navegador fins que hi tornis a entrar.';
+    else if (mode === 'busy') t = msg || 'Connectant amb el Drive…';
+    else t = msg || ('Es desa al teu Drive, a ' + DRIVE_NAME + (lastSaved ? ' · desat a les ' + hora(lastSaved) : '') + '.');
     setSync(t);
   }
 
-  /* la sesión de Google, compartida con las otras apps */
+  /* la sessió de Google, compartida amb les altres apps */
   function tokDesa(resp, u) {
     lsSet(TOK_KEY, JSON.stringify({
       t: resp.access_token,
@@ -1003,7 +1009,7 @@ li:last-child { border-bottom: 0; }
       });
   }
 
-  /* leer: si el Drive tiene algo más nuevo, manda el Drive; si lo nuevo es de aquí, se sube */
+  /* llegir: si el Drive té una cosa més nova, mana el Drive; si la nova és d'aquí, es puja */
   function drivePull(retried) {
     return ensureFile()
       .then(function (id) { return driveFetch(API + '/' + encodeURIComponent(id) + '?alt=media'); })
@@ -1030,7 +1036,7 @@ li:last-child { border-bottom: 0; }
       });
   }
 
-  /* escribir: una escritura cada vez, agrupando los cambios seguidos */
+  /* escriure: una escriptura cada vegada, i els canvis seguits van junts */
   function payload() {
     return JSON.stringify({ app: 'una-sola-cosa', versio: 1, desat: new Date().toISOString(), state: state }, null, 2);
   }
@@ -1065,13 +1071,13 @@ li:last-child { border-bottom: 0; }
   }
   function driveFail(e) {
     if (e && e.code === 'g_401') { caducada(); return; }
-    if (driveOn) driveUi('on', 'No he podido guardar en el Drive ahora mismo. Lo reintento con el próximo cambio; mientras, queda en este navegador.');
-    else driveUi('login', 'No he podido leer el Drive ahora mismo. Vuelve a intentarlo en un rato.');
+    if (driveOn) driveUi('on', 'Ara mateix no he pogut desar al Drive. Ho tornaré a provar amb el pròxim canvi; mentrestant, queda en aquest navegador.');
+    else driveUi('login', "Ara mateix no he pogut llegir el Drive. Torna-ho a provar d'aquí a una estona.");
   }
   function connect() {
     driveOn = true;
     pulling = true;
-    driveUi('busy', 'Leyendo tu Drive…');
+    driveUi('busy', 'Llegint el teu Drive…');
     drivePull().then(function () {
       pulling = false;
       if (!driveOn) return;
@@ -1098,24 +1104,24 @@ li:last-child { border-bottom: 0; }
     });
   }
 
-  /* entrar en Google */
+  /* entrar a Google */
   function waitForGis(cb, tries) {
     tries = tries || 0;
     if (window.google && google.accounts && google.accounts.oauth2) cb();
     else if (tries < 40) setTimeout(function () { waitForGis(cb, tries + 1); }, 250);
-    else if (!driveOn) driveUi('login', 'No se ha podido cargar el acceso de Google. Revisa la conexión y recarga la página.');
+    else if (!driveOn) driveUi('login', "No s'ha pogut carregar l'accés de Google. Mira la connexió i torna a carregar la pàgina.");
   }
   function signIn() {
-    if (!gClient) { driveUi('login', 'El acceso de Google aún está cargando. Vuelve a tocar en un momento.'); return; }
-    driveUi('busy', 'Esperando a Google…');
+    if (!gClient) { driveUi('login', "L'accés de Google encara s'està carregant. Torna a tocar d'aquí a un moment."); return; }
+    driveUi('busy', 'Esperant Google…');
     clearTimeout(busyTimer);
     busyTimer = setTimeout(function () { if (!driveOn) driveUi('login'); }, 90000);
     try { gClient.requestAccessToken({ prompt: '' }); }
-    catch (e) { driveUi('login', 'No se ha podido abrir el acceso de Google.'); }
+    catch (e) { driveUi('login', "No s'ha pogut obrir l'accés de Google."); }
   }
   function onGToken(resp) {
     clearTimeout(busyTimer);
-    if (resp.error) { driveUi('login', 'Google no ha dado acceso. Vuelve a intentarlo.'); return; }
+    if (resp.error) { driveUi('login', 'Google no ha donat accés. Torna-ho a provar.'); return; }
     gToken = resp.access_token;
     fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: 'Bearer ' + gToken } })
       .then(function (r) { return r.json(); })
@@ -1124,13 +1130,13 @@ li:last-child { border-bottom: 0; }
         if (email !== ALLOWED_EMAIL) {
           try { google.accounts.oauth2.revoke(gToken, function () {}); } catch (e) {}
           gToken = null;
-          driveUi('login', 'Esa cuenta (' + (u.email || '') + ') no tiene acceso. Entra con ' + ALLOWED_EMAIL + '.');
+          driveUi('login', 'Aquest compte (' + (u.email || '') + ') no hi té accés. Entra amb ' + ALLOWED_EMAIL + '.');
           return;
         }
         tokDesa(resp, u);
         connect();
       })
-      .catch(function () { gToken = null; driveUi('login', 'No he podido confirmar la cuenta. Vuelve a intentarlo.'); });
+      .catch(function () { gToken = null; driveUi('login', 'No he pogut confirmar el compte. Torna-ho a provar.'); });
   }
   function driveInit() {
     var cid = lsGet(CID_KEY);
@@ -1145,11 +1151,11 @@ li:last-child { border-bottom: 0; }
           callback: onGToken,
           error_callback: function () {
             clearTimeout(busyTimer);
-            if (!driveOn) driveUi('login', 'No se ha completado la entrada en Google. Vuelve a intentarlo.');
+            if (!driveOn) driveUi('login', "No s'ha acabat d'entrar a Google. Torna-ho a provar.");
           }
         });
       } catch (e) {
-        if (!driveOn) driveUi('setup', 'Ese Client ID no parece válido. Pega el de las otras apps de Solell.');
+        if (!driveOn) driveUi('setup', 'Aquest Client ID no sembla vàlid. Enganxa el de les altres apps de Solell.');
       }
     });
   }
@@ -1169,7 +1175,7 @@ li:last-child { border-bottom: 0; }
     lsSet(CID_KEY, v);
     driveInit();
   });
-  /* al cerrar o cambiar de app, lo que quede pendiente sale igualmente */
+  /* en tancar o canviar d'app, el que quedi pendent surt igualment */
   window.addEventListener('pagehide', function () {
     if (!driveOn || !dirty || !fileId || saving || !gToken) return;
     var body = payload();
@@ -1184,7 +1190,7 @@ li:last-child { border-bottom: 0; }
     } catch (e) {}
   });
 
-  /* ---------- eventos ---------- */
+  /* ---------- esdeveniments ---------- */
   $('primary').addEventListener('click', primaryAction);
   cv.addEventListener('click', primaryAction);
   $('done').addEventListener('click', markDone);
@@ -1236,7 +1242,7 @@ li:last-child { border-bottom: 0; }
     .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { tick(performance.now()); });
 
-  /* ---------- arranque ---------- */
+  /* ---------- arrencada ---------- */
   sizeCanvas();
   checkEnd(true);
   render();
