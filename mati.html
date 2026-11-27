@@ -386,6 +386,11 @@ body{background:radial-gradient(900px 420px at 8% -140px,rgba(161,98,58,.14),tra
 @media(max-width:900px){
   input,select,textarea{font-size:16px!important}
 }
+/* ---- marcar a mà el que ja està fet; es recorda durant el dia ---- */
+.resolved-item .fet-check{ display:flex; align-items:center; flex:none; cursor:pointer; padding-top:1px; }
+.resolved-item .fet-check input{ width:22px; height:22px; margin:0; cursor:pointer; accent-color:var(--coure); }
+.resolved-item.fet{ opacity:.5; }
+.resolved-item.fet .r-title{ text-decoration:line-through; }
 </style>
 </head>
 <body>
@@ -598,6 +603,42 @@ function carrega(data) {
   pinta();
 }
 
+/* ---------- marcar a mà el que ja he resolt; es recorda durant el dia ---------- */
+function fetKey(data) { return "solell_mati_fet_" + data; }
+function fetSet(data) { try { return new Set(JSON.parse(lsGet(fetKey(data)) || "[]")); } catch (e) { return new Set(); } }
+function fetDesa(data, set) { lsSet(fetKey(data), JSON.stringify(Array.prototype.slice.call(set))); }
+function itemId(item) {
+  var t = item.querySelector(".r-title");
+  var s = (t ? t.textContent : item.textContent) || "";
+  return s.replace(/\s+/g, " ").trim().slice(0, 120);
+}
+function marcaFets(sh, data) {
+  var items = sh.querySelectorAll(".resolved-item");
+  if (!items.length) return;
+  var fets = fetSet(data);
+  Array.prototype.forEach.call(items, function (item) {
+    var id = itemId(item);
+    var lab = document.createElement("label");
+    lab.className = "fet-check";
+    var box = document.createElement("input");
+    box.type = "checkbox";
+    box.setAttribute("aria-label", "Marca com a fet");
+    lab.appendChild(box);
+    item.insertBefore(lab, item.firstChild);
+    function aplica(on) {
+      item.classList.toggle("fet", on);
+      box.checked = on;
+      if (on && item.parentNode) item.parentNode.appendChild(item);
+    }
+    if (fets.has(id)) aplica(true);
+    box.addEventListener("change", function () {
+      if (box.checked) fets.add(id); else fets.delete(id);
+      fetDesa(data, fets);
+      aplica(box.checked);
+    });
+  });
+}
+
 function pinta() {
   var cos = $("resum-cos"), tira = $("dies");
   cos.replaceChildren(); tira.replaceChildren();
@@ -618,7 +659,7 @@ function pinta() {
   tira.hidden = DIES.length < 2;
 
   var sh = shellDe(d.html);
-  if (sh) cos.appendChild(sh);
+  if (sh) { cos.appendChild(sh); marcaFets(sh, d.data); }
   else {
     var p = document.createElement("p");
     p.className = "hint";
