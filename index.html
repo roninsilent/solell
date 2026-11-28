@@ -67,6 +67,7 @@ h1{font-family:var(--display);font-weight:600;font-size:clamp(26px,5.4vw,34px);l
 .i-factura{--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 3.5h14v17l-2.3-1.6-2.4 1.6-2.3-1.6-2.4 1.6L7.3 19 5 20.5z'/%3E%3Cpath d='M8.6 8h6.8M8.6 12h6.8'/%3E%3C/svg%3E")}
 .i-sortida{--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 18h16'/%3E%3Cpath d='M7 18a5 5 0 0 1 10 0'/%3E%3Cpath d='M12 7v3M7.5 10.5l1.4 1.4M16.5 10.5l-1.4 1.4M4.3 15h1.4M18.3 15h1.4'/%3E%3C/svg%3E")}
 .i-llamp{--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M13.2 2.8 5.6 13.4h5.6l-1 7.8 7.6-10.6h-5.6l1-7.8z'/%3E%3C/svg%3E")}
+.i-oficina{--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='12' width='18' height='4' rx='1'/%3E%3Cpath d='M5 16v4M19 16v4'/%3E%3Crect x='9' y='5' width='6' height='5' rx='1'/%3E%3Cpath d='M12 10v2'/%3E%3C/svg%3E")}
 .i-vas{--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 3.5h14l-1.9 17H6.9z'/%3E%3Cpath d='M6.1 11h11.8'/%3E%3Cpath d='M14.6 14.5h1.7M14.9 17.5h1.3'/%3E%3C/svg%3E")}
 .i-pagina{--m:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='4' width='17' height='16' rx='2.5'/%3E%3Cpath d='M3.5 9h17M8 13h8M8 16.5h5'/%3E%3C/svg%3E")}
 
@@ -162,6 +163,12 @@ var CONEGUDES = {
   "una-sola-cosa.html": { n:"Una sola cosa", i:"i-vas",  o:4 }
 };
 var AMAGA = ["index.html", "404.html"];
+
+/* Pàgines que viuen fora d'aquest repositori. Surten sempre, al final. */
+var EXTERNES = [
+  { nom:"https://roninsilent.github.io/oficina-agents/", titol:"Oficina dels agents", desc:null, icona:"i-oficina" },
+  { nom:"https://claude.ai/artifact/923xkawXSYWxL6rRPPNViG", titol:"Oficina dels agents, en viu", desc:null, icona:"i-oficina" }
+];
 var CACHE = "solell_apps_v1";
 
 function $(id){ return document.getElementById(id); }
@@ -217,6 +224,7 @@ function fitxaDe(nom){
 }
 
 function pinta(fitxes){
+  fitxes = fitxes.filter(function(f){ return !/^https?:/i.test(f.nom); }).concat(EXTERNES);
   var ul = $("apps");
   ul.replaceChildren();
   fitxes.forEach(function(f){
